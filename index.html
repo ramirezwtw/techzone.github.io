@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TechZone analiza tus necesidades, presupuesto y preferencias para recomendarte configuraciones de PC compatibles y optimizadas. Asesoría inteligente de hardware." />
+  <meta name="keywords" content="TechZone, configuración PC, asesoría hardware, componentes compatibles, recomendaciones hardware, computadora gaming" />
+  <meta property="og:title" content="TechZone — Encuentra la PC perfecta para ti" />
+  <meta property="og:description" content="Plataforma inteligente de asesoramiento de hardware. Recomendaciones compatibles según tu presupuesto y necesidades." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="img/logo-techzone.png" />
+  <title>TechZone — Encuentra la PC perfecta para ti</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════
+       NAVBAR
+  ═════════════════════════════════════════════════ -->
+  <header class="navbar" id="navbar" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="#inicio" class="nav-logo" aria-label="TechZone inicio">
+        <img src="img/logo-techzone.png" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navLinks">
+        <span class="toggle-bar"></span>
+        <span class="toggle-bar"></span>
+        <span class="toggle-bar"></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks" role="list">
+        <li><a href="#inicio"          class="nav-link">Inicio</a></li>
+        <li><a href="#caracteristicas" class="nav-link">Características</a></li>
+        <li><a href="#gaming"          class="nav-link">Gaming</a></li>
+        <li><a href="#beneficios"      class="nav-link">Beneficios</a></li>
+        <li><a href="#comunidad"       class="nav-link">Comunidad</a></li>
+        <li><a href="#galeria"         class="nav-link">Galería</a></li>
+      </ul>
+
+      <div class="nav-auth">
+        <a href="#" class="btn-secondary btn-sm">Iniciar Sesión</a>
+        <a href="#registro" class="btn-primary btn-sm">Registrarse</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ════════════════════════════════════════════════
+         HERO — SPLIT LAYOUT
+    ═════════════════════════════════════════════════ -->
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
+        <div class="hero-grid"></div>
+      </div>
+
+      <div class="container hero-split">
+
+        <!-- Left: Text -->
+        <div class="hero-content">
+          <div class="hero-badge fade-up">
+            <span class="badge-dot" aria-hidden="true"></span>
+            Plataforma de Asesoría Inteligente de Hardware
+          </div>
+
+          <h1 class="hero-title fade-up" id="hero-title">
+            Encuentra la PC perfecta
+            <span class="gradient-text">para ti sin complicaciones</span>
+          </h1>
+
+          <p class="hero-subtitle fade-up">
+            TechZone analiza tus necesidades, presupuesto y preferencias para recomendarte
+            configuraciones compatibles y optimizadas. Sin tecnicismos, sin estrés.
+          </p>
+
+          <div class="hero-actions fade-up">
+            <a href="#registro" class="btn-primary btn-lg">
+              Comenzar Asesoría
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#solucion" class="btn-secondary btn-lg">
+              Ver Cómo Funciona
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M6 5.5l4 2.5-4 2.5V5.5z" fill="currentColor"/></svg>
+            </a>
+          </div>
+
+          <div class="hero-stats fade-up" aria-label="Estadísticas de la plataforma">
+            <div class="hero-stat">
+              <span class="stat-number">5,000+</span>
+              <span class="stat-label">Usuarios activos</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <span class="stat-number">98%</span>
+              <span class="stat-label">Compatibilidad garantizada</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <span class="stat-number">12k+</span>
+              <span class="stat-label">Configuraciones generadas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Image -->
+        <div class="hero-image-wrap fade-up" aria-hidden="true">
+          <div class="hero-img-frame">
+            <img
+              src="https://images.pexels.com/photos/30469971/pexels-photo-30469971.jpeg?auto=compress&cs=tinysrgb&w=900"
+              alt="Setup gamer moderno con iluminación RGB"
+              class="hero-img"
+              loading="eager"
+            />
+            <div class="hero-img-overlay"></div>
+          </div>
+
+          <div class="float-card float-card-1">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l1.8 5.4H17l-4.5 3.3 1.7 5.3L9 13l-5.2 3 1.7-5.3L1 7.4h6.2L9 2z" fill="#A855F7"/></svg>
+            <span>IA Activa</span>
+          </div>
+          <div class="float-card float-card-2">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1C4.6 1 1 4.6 1 9s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8z" fill="#22C55E" opacity=".2"/><path d="M6 9l2 2 4-4" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>100% Compatible</span>
+          </div>
+          <div class="float-card float-card-3">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="2" stroke="#C084FC" stroke-width="1.5"/><path d="M6 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="#C084FC" stroke-width="1.5"/></svg>
+            <span>Guardado</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         PROBLEMA
+    ═════════════════════════════════════════════════ -->
+    <section class="section problema" id="problema" aria-labelledby="problema-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">El Problema</div>
+          <h2 class="section-title" id="problema-title">Elegir componentes nunca<br />ha sido tan difícil</h2>
+          <p class="section-subtitle">El mercado de hardware es complejo. La información está fragmentada y una mala elección puede costarte cientos de dólares.</p>
+        </div>
+
+        <div class="problems-grid">
+          <article class="problem-card fade-up">
+            <div class="problem-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <h3 class="problem-title">No sabes qué comprar</h3>
+            <p class="problem-desc">Miles de opciones sin saber cuál se adapta realmente a lo que necesitas.</p>
+          </article>
+
+          <article class="problem-card fade-up">
+            <div class="problem-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+            </div>
+            <h3 class="problem-title">Incompatibilidades ocultas</h3>
+            <p class="problem-desc">Componentes que parecen correctos pero no funcionan juntos. Un error costoso.</p>
+          </article>
+
+          <article class="problem-card fade-up">
+            <div class="problem-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5"/><path d="M6 15h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <h3 class="problem-title">Presupuesto limitado</h3>
+            <p class="problem-desc">Difícil maximizar el rendimiento sin exceder lo que tienes disponible para invertir.</p>
+          </article>
+
+          <article class="problem-card fade-up">
+            <div class="problem-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M8 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M8 6h8" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <h3 class="problem-title">Exceso de opciones</h3>
+            <p class="problem-desc">El mercado ofrece cientos de combinaciones. La parálisis por análisis es real.</p>
+          </article>
+
+          <article class="problem-card fade-up">
+            <div class="problem-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <h3 class="problem-title">Información confusa</h3>
+            <p class="problem-desc">Foros dispersos, reviews contradictorias y specs técnicas difíciles de interpretar.</p>
+          </article>
+
+          <article class="problem-card fade-up problem-card-highlight">
+            <div class="problem-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+            </div>
+            <h3 class="problem-title">Sin asesoría experta</h3>
+            <p class="problem-desc">Nadie disponible 24/7 que te guíe con conocimiento técnico y adapte su consejo a tu caso.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         SOLUCIÓN — STEPS
+    ═════════════════════════════════════════════════ -->
+    <section class="section solucion" id="solucion" aria-labelledby="solucion-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">La Solución</div>
+          <h2 class="section-title" id="solucion-title">TechZone simplifica<br />todo el proceso</h2>
+          <p class="section-subtitle">En cuatro simples pasos obtienes la configuración ideal validada por nuestra inteligencia artificial.</p>
+        </div>
+
+        <div class="steps-container">
+          <div class="steps-line" aria-hidden="true"></div>
+          <div class="steps-grid">
+
+            <article class="step-card fade-up">
+              <div class="step-number" aria-hidden="true">01</div>
+              <div class="step-icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 3C8 3 3 8 3 14s5 11 11 11 11-5 11-11S20 3 14 3z" stroke="currentColor" stroke-width="1.5"/><path d="M14 10v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="step-title">Crea tu cuenta</h3>
+              <p class="step-desc">Regístrate gratis en segundos. Solo necesitas tu email. Sin tarjeta de crédito.</p>
+            </article>
+
+            <article class="step-card fade-up">
+              <div class="step-number" aria-hidden="true">02</div>
+              <div class="step-icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="4" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 14h10M9 10h10M9 18h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="step-title">Completa tu asesoría</h3>
+              <p class="step-desc">Cuéntanos tu presupuesto, uso y preferencias. Nuestro formulario inteligente hace el resto.</p>
+            </article>
+
+            <article class="step-card fade-up">
+              <div class="step-number" aria-hidden="true">03</div>
+              <div class="step-icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 3l3 8h8l-6.5 4.7 2.5 7.8L14 19l-7 4.5 2.5-7.8L3 11h8l3-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </div>
+              <h3 class="step-title">Analizamos tus necesidades</h3>
+              <p class="step-desc">Nuestra IA procesa tu perfil y valida miles de combinaciones en segundos.</p>
+            </article>
+
+            <article class="step-card fade-up">
+              <div class="step-number" aria-hidden="true">04</div>
+              <div class="step-icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M4 14c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 14l3 3 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3 class="step-title">Recibe recomendaciones</h3>
+              <p class="step-desc">Obtén configuraciones optimizadas, listas para comprar, con links a tiendas verificadas.</p>
+            </article>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         CARACTERÍSTICAS (con imágenes de fondo en cards)
+    ═════════════════════════════════════════════════ -->
+    <section class="section caracteristicas" id="caracteristicas" aria-labelledby="feat-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Características</div>
+          <h2 class="section-title" id="feat-title">Todo lo que necesitas<br />en una sola plataforma</h2>
+          <p class="section-subtitle">TechZone es el ecosistema completo para explorar, comparar y elegir los mejores componentes para tu computadora.</p>
+        </div>
+
+        <div class="features-grid">
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/16129724/pexels-photo-16129724.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2C6 2 2 6 2 11s4 9 9 9 9-4 9-9-4-9-9-9z" stroke="currentColor" stroke-width="1.5"/><path d="M8 11l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3 class="feature-title">Registro seguro</h3>
+            <p class="feature-desc">Crea tu cuenta con email verificado. Datos protegidos con cifrado de extremo a extremo.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/30047570/pexels-photo-30047570.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 7V5a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="11" cy="13" r="1.5" fill="currentColor"/></svg></div>
+            <h3 class="feature-title">Inicio de sesión</h3>
+            <p class="feature-desc">Accede desde cualquier dispositivo con autenticación segura y sesión persistente.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/374006/pexels-photo-374006.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 4h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.5"/><polyline points="22,6 11,13 2,6" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h3 class="feature-title">Recuperación de contraseña</h3>
+            <p class="feature-desc">Restablece el acceso fácilmente con verificación por correo electrónico en segundos.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/12899156/pexels-photo-12899156.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h3 class="feature-title">Perfil personalizado</h3>
+            <p class="feature-desc">Guarda tus preferencias, historial de asesorías y configuraciones favoritas en tu perfil.</p>
+          </article>
+
+          <article class="feature-card fade-up feature-card-featured">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/32260117/pexels-photo-32260117.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2l2.2 6.6H20l-5.6 4.1 2.2 6.6L11 15.2 4.4 19.3l2.2-6.6L1 8.6h6.8L11 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+            <h3 class="feature-title">Asesoría inteligente</h3>
+            <p class="feature-desc">Motor de IA que procesa tu perfil completo y genera recomendaciones hiperpersonalizadas en segundos.</p>
+            <span class="feature-badge">IA Powered</span>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/36706460/pexels-photo-36706460.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="3" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3 class="feature-title">Recomendaciones automáticas</h3>
+            <p class="feature-desc">Recibe múltiples configuraciones ordenadas por relevancia, precio y rendimiento.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3 class="feature-title">Compatibilidad garantizada</h3>
+            <p class="feature-desc">Validamos socket, chipset, TDP y más. Solo configuraciones que funcionan juntas.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/8622911/pexels-photo-8622911.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="12" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="12" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h3 class="feature-title">Comparación de componentes</h3>
+            <p class="feature-desc">Compara CPU, GPU, RAM en tablas detalladas. Toma decisiones con información real.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/8353774/pexels-photo-8353774.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.5"/><polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="1.5"/><polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h3 class="feature-title">Guardado de configuraciones</h3>
+            <p class="feature-desc">Guarda y nombra tus builds favoritas. Compártelas con amigos o retómalas cuando quieras.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/16129724/pexels-photo-16129724.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.5"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h3 class="feature-title">Foro comunitario</h3>
+            <p class="feature-desc">Conecta con usuarios expertos, comparte builds y recibe consejos de la comunidad.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/16129728/pexels-photo-16129728.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="9" cy="21" r="1" fill="currentColor"/><circle cx="20" cy="21" r="1" fill="currentColor"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <h3 class="feature-title">Integración con tiendas</h3>
+            <p class="feature-desc">Links directos a tiendas verificadas con los mejores precios actualizados en tiempo real.</p>
+          </article>
+
+          <article class="feature-card fade-up">
+            <div class="feature-bg-img" style="background-image:url('https://images.pexels.com/photos/30047570/pexels-photo-30047570.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+            <div class="feature-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.5"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h3 class="feature-title">Notificaciones por correo</h3>
+            <p class="feature-desc">Alertas de disponibilidad, cambios de precio y nuevas recomendaciones a tu inbox.</p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         HERO SECUNDARIO — T-07
+    ═════════════════════════════════════════════════ -->
+    <section class="section hero-sec" id="hero-secundario" aria-labelledby="hero-sec-title">
+      <div class="hero-sec-bg" aria-hidden="true">
+        <div class="hero-sec-glow-1"></div>
+        <div class="hero-sec-glow-2"></div>
+      </div>
+      <div class="container hero-sec-split">
+
+        <div class="hero-sec-content fade-up">
+          <div class="section-label">Tu próxima PC</div>
+          <h2 class="hero-sec-title" id="hero-sec-title">
+            Tu próxima computadora perfecta<br>
+            <span class="gradient-text">está a pocos clics</span>
+          </h2>
+          <p class="hero-sec-desc">TechZone simplifica radicalmente la elección de hardware. Define tu presupuesto, cuéntanos tu uso y recibe configuraciones compatibles, validadas y listas para comprar en minutos.</p>
+          <div class="hero-sec-actions">
+            <a href="#registro" class="btn-primary btn-lg btn-glow">
+              Comenzar Ahora
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#hardware" class="btn-secondary btn-lg">Ver Recomendaciones</a>
+          </div>
+          <div class="hero-sec-checks">
+            <span class="hsc-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Sin tecnicismos</span>
+            <span class="hsc-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>100% compatible</span>
+            <span class="hsc-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Gratis para siempre</span>
+          </div>
+        </div>
+
+        <div class="hero-sec-visual fade-up" aria-hidden="true">
+          <div class="hero-sec-img-frame">
+            <img src="https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Setup tecnológico premium con múltiples pantallas" class="hero-sec-img" loading="lazy"/>
+            <div class="hero-sec-overlay"></div>
+          </div>
+          <div class="hero-sec-badge hero-sec-badge-1">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.8 4.9H15l-4.1 3 1.6 4.9L8 11.3 3.5 14.3l1.6-4.9L1 6.4h5.2L8 1.5z" fill="#A855F7"/></svg>
+            <div><div class="hsb-main">IA Activa</div><div class="hsb-sub">Análisis en tiempo real</div></div>
+          </div>
+          <div class="hero-sec-badge hero-sec-badge-2">
+            <div class="hsb-num">10 min</div>
+            <div class="hsb-sub">Build ideal promedio</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         EXPLORA COMPONENTES — T-04
+    ═════════════════════════════════════════════════ -->
+    <section class="section componentes" id="componentes" aria-labelledby="comp-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Componentes</div>
+          <h2 class="section-title" id="comp-title">Explora Componentes<br>de Hardware</h2>
+          <p class="section-subtitle">Categorías seleccionadas para cada tipo de build. Encuentra el hardware ideal con descripciones claras y recomendaciones precisas.</p>
+        </div>
+        <div class="comp-grid">
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/30083229/pexels-photo-30083229.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Procesadores CPU" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="6" y="6" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M8 6V3M11 6V3M14 6V3M8 19v-3M11 19v-3M14 19v-3M6 8H3M6 11H3M6 14H3M19 8h-3M19 11h-3M19 14h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">Procesadores</h3><p class="comp-desc">Intel Core y AMD Ryzen de última generación para gaming, trabajo y creación.</p></div>
+          </article>
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/8622911/pexels-photo-8622911.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Tarjetas Gráficas GPU" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="6" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 10h2M10 10h2M6 14h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 6V4M15 6V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">Tarjetas Gráficas</h3><p class="comp-desc">NVIDIA RTX y AMD Radeon. Gaming en 4K, ray tracing y workstations visuales.</p></div>
+          </article>
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/34006659/pexels-photo-34006659.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Memorias RAM" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="8" width="18" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M6 8V6M9 8V6M12 8V6M15 8V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5 11h1M9 11h1M13 11h1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">Memorias RAM</h3><p class="comp-desc">DDR4 y DDR5 de alta frecuencia. Más velocidad, menor latencia, mejor rendimiento.</p></div>
+          </article>
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=600" alt="SSD NVMe" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="7" width="16" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="11" r="1.5" fill="currentColor"/><path d="M11 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">SSD NVMe</h3><p class="comp-desc">Almacenamiento PCIe Gen4/5 a 7,000 MB/s+. Cargas instantáneas garantizadas.</p></div>
+          </article>
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/12899156/pexels-photo-12899156.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Placas Base Motherboard" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M13 6h4M13 9h4M5 13h12M5 16h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">Placas Base</h3><p class="comp-desc">Compatibilidad total con AMD e Intel. VRM robustos y conectividad PCIe 5.0.</p></div>
+          </article>
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/33693785/pexels-photo-33693785.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Fuentes de Poder PSU" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M13 2L4 14h7l-2 6 9-12h-7l2-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">Fuentes de Poder</h3><p class="comp-desc">80+ Gold y Platinum con protecciones completas. Eficiencia y estabilidad garantizadas.</p></div>
+          </article>
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/1038916/pexels-photo-1038916.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Gabinetes Gamer" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="4" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="7" y="5" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="16" r="1.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">Gabinetes Gamer</h3><p class="comp-desc">Panel de cristal templado, flujo de aire optimizado y gestión de cables integrada.</p></div>
+          </article>
+
+          <article class="comp-card fade-up">
+            <div class="comp-img-wrap">
+              <img src="https://images.pexels.com/photos/30469971/pexels-photo-30469971.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Refrigeración Cooling" class="comp-img" loading="lazy"/>
+              <div class="comp-overlay"></div>
+              <div class="comp-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M11 2v3M11 17v3M2 11h3M17 11h3M4.9 4.9l2.1 2.1M15 15l2.1 2.1M4.9 17.1l2.1-2.1M15 7l2.1-2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="comp-body"><h3 class="comp-name">Refrigeración</h3><p class="comp-desc">Cooling de aire y líquido AIO. Temperaturas óptimas bajo máxima carga garantizadas.</p></div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         HARDWARE COMPONENTS — T-06 MARCAS
+    ═════════════════════════════════════════════════ -->
+    <section class="section hardware" id="hardware" aria-labelledby="hw-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Componentes</div>
+          <h2 class="section-title" id="hw-title">Hardware de última generación</h2>
+          <p class="section-subtitle">Nuestra base de datos integra los componentes más recientes del mercado. Desde CPUs de última generación hasta gabinetes premium.</p>
+        </div>
+
+        <div class="hardware-grid">
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/30083229/pexels-photo-30083229.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Procesador AMD Ryzen" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">AMD</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">AMD Ryzen 9</h3>
+              <p class="hw-desc">Máximo rendimiento multihilo. Ideal para gaming y workstations.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/785418/pexels-photo-785418.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Procesador Intel Core" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">Intel</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">Intel Core i9</h3>
+              <p class="hw-desc">Potencia y estabilidad para las cargas de trabajo más exigentes.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/8622911/pexels-photo-8622911.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Tarjeta gráfica NVIDIA RTX" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">NVIDIA</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">NVIDIA RTX 4080</h3>
+              <p class="hw-desc">Ray tracing y DLSS de última generación para gaming en 4K.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/8622911/pexels-photo-8622911.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Tarjeta gráfica AMD Radeon" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">AMD</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">AMD Radeon RX 7900</h3>
+              <p class="hw-desc">Alternativa premium con rendimiento excepcional en cualquier resolución.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/34006659/pexels-photo-34006659.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Memorias RAM RGB" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">DDR5</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">RAM DDR5 RGB</h3>
+              <p class="hw-desc">Alta frecuencia y latencias bajas. Iluminación RGB sincronizable.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=500" alt="SSD NVMe" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">NVMe</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">SSD NVMe PCIe 5.0</h3>
+              <p class="hw-desc">Velocidades de hasta 12,000 MB/s. Cargas instantáneas garantizadas.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Placa base gaming" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">Motherboard</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">Placa Base Gaming</h3>
+              <p class="hw-desc">Máxima compatibilidad de VRM robustos y conectividad moderna.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/33693785/pexels-photo-33693785.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Fuente de poder modular" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">PSU</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">Fuente Modular 80+ Gold</h3>
+              <p class="hw-desc">Eficiencia energética premium. Cables modulares para build limpio.</p>
+            </div>
+          </article>
+
+          <article class="hw-card fade-up">
+            <div class="hw-img-wrap">
+              <img src="https://images.pexels.com/photos/1038916/pexels-photo-1038916.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Gabinete gamer" class="hw-img" loading="lazy" />
+              <div class="hw-img-overlay"></div>
+              <span class="hw-brand-badge">Case</span>
+            </div>
+            <div class="hw-info">
+              <h3 class="hw-name">Gabinete Gamer ATX</h3>
+              <p class="hw-desc">Panel de cristal templado, flujo de aire optimizado y gestión de cables.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         GAMING CATEGORIES — T-05
+    ═════════════════════════════════════════════════ -->
+    <section class="section gaming" id="gaming" aria-labelledby="gaming-title">
+      <div class="gaming-bg" aria-hidden="true"><div class="gaming-glow"></div></div>
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Gaming</div>
+          <h2 class="section-title" id="gaming-title">Configuraciones para Gamers</h2>
+          <p class="section-subtitle">Builds optimizadas para cada nivel y presupuesto. Desde tu primera PC gamer hasta la máquina de guerra definitiva.</p>
+        </div>
+        <div class="gaming-grid">
+
+          <article class="gaming-card fade-up">
+            <div class="gaming-card-img-wrap">
+              <img src="https://images.pexels.com/photos/8607559/pexels-photo-8607559.jpeg?auto=compress&cs=tinysrgb&w=700" alt="PC Gamer Inicial setup RGB" class="gaming-card-img" loading="lazy"/>
+              <div class="gaming-card-overlay"></div>
+            </div>
+            <div class="gaming-card-body">
+              <div class="gaming-tier-badge">🎮 Inicial</div>
+              <h3 class="gaming-card-title">Gamer Inicial</h3>
+              <div class="gaming-budget">
+                <span class="budget-label">Presupuesto estimado</span>
+                <span class="budget-price">$500 – $800 USD</span>
+              </div>
+              <ul class="gaming-specs">
+                <li><span class="spec-label">CPU</span><span class="spec-val">AMD Ryzen 5 5600 / Intel i5-12400F</span></li>
+                <li><span class="spec-label">GPU</span><span class="spec-val">NVIDIA RTX 3060 / RX 6650 XT</span></li>
+                <li><span class="spec-label">RAM</span><span class="spec-val">16 GB DDR4 3200 MHz</span></li>
+                <li><span class="spec-label">SSD</span><span class="spec-val">500 GB NVMe</span></li>
+              </ul>
+              <div class="gaming-perf">
+                <div class="perf-label">Rendimiento esperado</div>
+                <div class="perf-value">1080p / 60–100 fps en AAA</div>
+                <div class="perf-bar"><div class="perf-fill" style="width:45%"></div></div>
+              </div>
+              <a href="#registro" class="btn-secondary btn-lg gaming-cta">Ver Build <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            </div>
+          </article>
+
+          <article class="gaming-card gaming-card-featured fade-up">
+            <div class="gaming-popular-badge">⭐ Más Popular</div>
+            <div class="gaming-card-img-wrap">
+              <img src="https://images.pexels.com/photos/30469967/pexels-photo-30469967.jpeg?auto=compress&cs=tinysrgb&w=700" alt="PC Gamer Intermedio setup morado" class="gaming-card-img" loading="lazy"/>
+              <div class="gaming-card-overlay"></div>
+            </div>
+            <div class="gaming-card-body">
+              <div class="gaming-tier-badge gaming-tier-featured">💜 Intermedio</div>
+              <h3 class="gaming-card-title">Gamer Intermedio</h3>
+              <div class="gaming-budget">
+                <span class="budget-label">Presupuesto estimado</span>
+                <span class="budget-price gradient-text">$800 – $1,500 USD</span>
+              </div>
+              <ul class="gaming-specs">
+                <li><span class="spec-label">CPU</span><span class="spec-val">AMD Ryzen 7 7700X / Intel i7-13700K</span></li>
+                <li><span class="spec-label">GPU</span><span class="spec-val">NVIDIA RTX 4070 / RX 7800 XT</span></li>
+                <li><span class="spec-label">RAM</span><span class="spec-val">32 GB DDR5 5200 MHz</span></li>
+                <li><span class="spec-label">SSD</span><span class="spec-val">1 TB NVMe PCIe 4.0</span></li>
+              </ul>
+              <div class="gaming-perf">
+                <div class="perf-label">Rendimiento esperado</div>
+                <div class="perf-value">1440p / 100–165 fps en AAA</div>
+                <div class="perf-bar"><div class="perf-fill perf-fill-featured" style="width:72%"></div></div>
+              </div>
+              <a href="#registro" class="btn-primary btn-lg gaming-cta btn-glow">Ver Build <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            </div>
+          </article>
+
+          <article class="gaming-card fade-up">
+            <div class="gaming-card-img-wrap">
+              <img src="https://images.pexels.com/photos/32260117/pexels-photo-32260117.jpeg?auto=compress&cs=tinysrgb&w=700" alt="PC Gamer Profesional multimonitor" class="gaming-card-img" loading="lazy"/>
+              <div class="gaming-card-overlay"></div>
+            </div>
+            <div class="gaming-card-body">
+              <div class="gaming-tier-badge">🚀 Profesional</div>
+              <h3 class="gaming-card-title">Gamer Profesional</h3>
+              <div class="gaming-budget">
+                <span class="budget-label">Presupuesto estimado</span>
+                <span class="budget-price">$1,500 – $3,000+ USD</span>
+              </div>
+              <ul class="gaming-specs">
+                <li><span class="spec-label">CPU</span><span class="spec-val">AMD Ryzen 9 7950X / Intel i9-14900K</span></li>
+                <li><span class="spec-label">GPU</span><span class="spec-val">NVIDIA RTX 4090 / RX 7900 XTX</span></li>
+                <li><span class="spec-label">RAM</span><span class="spec-val">64 GB DDR5 6000 MHz</span></li>
+                <li><span class="spec-label">SSD</span><span class="spec-val">2 TB NVMe PCIe 5.0</span></li>
+              </ul>
+              <div class="gaming-perf">
+                <div class="perf-label">Rendimiento esperado</div>
+                <div class="perf-value">4K / 144+ fps con ray tracing</div>
+                <div class="perf-bar"><div class="perf-fill" style="width:98%"></div></div>
+              </div>
+              <a href="#registro" class="btn-secondary btn-lg gaming-cta">Ver Build <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         BENEFICIOS
+    ═════════════════════════════════════════════════ -->
+    <section class="section beneficios" id="beneficios" aria-labelledby="ben-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Beneficios</div>
+          <h2 class="section-title" id="ben-title">¿Por qué elegir TechZone?</h2>
+          <p class="section-subtitle">Métricas reales de una plataforma que pone la tecnología al servicio de tus decisiones.</p>
+        </div>
+
+        <div class="benefits-grid fade-up">
+
+          <article class="benefit-card">
+            <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 0 0 1.946-.806 3.42 3.42 0 0 1 4.438 0 3.42 3.42 0 0 0 1.946.806 3.42 3.42 0 0 1 3.138 3.138 3.42 3.42 0 0 0 .806 1.946 3.42 3.42 0 0 1 0 4.438 3.42 3.42 0 0 0-.806 1.946 3.42 3.42 0 0 1-3.138 3.138 3.42 3.42 0 0 0-1.946.806 3.42 3.42 0 0 1-4.438 0 3.42 3.42 0 0 0-1.946-.806 3.42 3.42 0 0 1-3.138-3.138 3.42 3.42 0 0 0-.806-1.946 3.42 3.42 0 0 1 0-4.438 3.42 3.42 0 0 0 .806-1.946 3.42 3.42 0 0 1 3.138-3.138z" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h4 class="benefit-card-title">Compatibilidad garantizada</h4>
+            <p class="benefit-card-desc">Validamos cada combinación de componentes antes de mostrarte resultados. Cero errores de incompatibilidad.</p>
+          </article>
+
+          <article class="benefit-card">
+            <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <h4 class="benefit-card-title">Recomendaciones inteligentes</h4>
+            <p class="benefit-card-desc">Motor de IA entrenado con miles de builds reales. Sugerencias personalizadas según tu perfil y uso.</p>
+          </article>
+
+          <article class="benefit-card">
+            <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5"/><path d="M6 15h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <h4 class="benefit-card-title">Optimización del presupuesto</h4>
+            <p class="benefit-card-desc">Maximiza el rendimiento dentro de tu presupuesto. Hasta un 30% más de valor por cada dólar invertido.</p>
+          </article>
+
+          <article class="benefit-card">
+            <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <h4 class="benefit-card-title">Comparación de componentes</h4>
+            <p class="benefit-card-desc">Compara CPUs, GPUs y RAM lado a lado con datos técnicos reales. Toma decisiones informadas.</p>
+          </article>
+
+          <article class="benefit-card">
+            <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <h4 class="benefit-card-title">Ahorro de tiempo</h4>
+            <p class="benefit-card-desc">En menos de 10 minutos tienes tu build ideal. Sin horas de investigación ni comparaciones interminables.</p>
+          </article>
+
+          <article class="benefit-card">
+            <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <h4 class="benefit-card-title">Comunidad tecnológica</h4>
+            <p class="benefit-card-desc">Miles de usuarios activos compartiendo builds, consejos y experiencias. Aprende de los mejores.</p>
+          </article>
+
+        </div>
+
+        <div class="benefits-layout">
+          <div class="benefits-metrics fade-up">
+            <div class="metric-card">
+              <div class="metric-circle" aria-hidden="true">
+                <svg viewBox="0 0 80 80" width="80" height="80">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="#27272A" stroke-width="6"/>
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="url(#mg1)" stroke-width="6" stroke-dasharray="196 213" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+                  <defs><linearGradient id="mg1" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#7C3AED"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs>
+                </svg>
+                <span class="metric-pct">98%</span>
+              </div>
+              <div class="metric-info">
+                <h4 class="metric-title">Compatibilidad garantizada</h4>
+                <p class="metric-desc">Cada configuración es validada técnicamente antes de mostrarte resultados.</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-circle" aria-hidden="true">
+                <svg viewBox="0 0 80 80" width="80" height="80">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="#27272A" stroke-width="6"/>
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="url(#mg2)" stroke-width="6" stroke-dasharray="179 213" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+                  <defs><linearGradient id="mg2" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#7C3AED"/><stop offset="1" stop-color="#C084FC"/></linearGradient></defs>
+                </svg>
+                <span class="metric-pct">84%</span>
+              </div>
+              <div class="metric-info">
+                <h4 class="metric-title">Ahorro de tiempo</h4>
+                <p class="metric-desc">Los usuarios encuentran su build ideal en menos de 10 minutos promedio.</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-circle" aria-hidden="true">
+                <svg viewBox="0 0 80 80" width="80" height="80">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="#27272A" stroke-width="6"/>
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="url(#mg3)" stroke-width="6" stroke-dasharray="192 213" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+                  <defs><linearGradient id="mg3" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#A855F7"/><stop offset="1" stop-color="#C084FC"/></linearGradient></defs>
+                </svg>
+                <span class="metric-pct">90%</span>
+              </div>
+              <div class="metric-info">
+                <h4 class="metric-title">Optimización del presupuesto</h4>
+                <p class="metric-desc">Nuestros usuarios reportan hasta un 30% más de rendimiento por dólar invertido.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="benefits-cards fade-up">
+            <div class="benefit-highlight-card">
+              <div class="bh-icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 3l2.7 8.2H27l-7 5.1 2.7 8.2-7-5.1-7 5.1 2.7-8.2-7-5.1h8.3L16 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+              <h4>Recomendaciones inteligentes</h4>
+              <p>Motor de IA entrenado con miles de builds reales. Aprende de cada sesión para mejorar sus sugerencias.</p>
+              <div class="bh-tags"><span class="tag">Machine Learning</span><span class="tag">Personalización</span></div>
+            </div>
+            <div class="benefit-highlight-card">
+              <div class="bh-icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M28 20c0 1.1-.9 2-2 2H8l-5 5V6a2 2 0 0 1 2-2h21a2 2 0 0 1 2 2v14z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+              <h4>Comunidad activa</h4>
+              <p>Miles de usuarios comparten experiencias, builds y consejos. La sabiduría colectiva a tu disposición.</p>
+              <div class="bh-tags"><span class="tag">Foro 24/7</span><span class="tag">Soporte P2P</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         CASOS DE USO (con imágenes reales)
+    ═════════════════════════════════════════════════ -->
+    <section class="section casos-uso" id="casos-uso" aria-labelledby="casos-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Casos de Uso</div>
+          <h2 class="section-title" id="casos-title">Pensado para todos los perfiles</h2>
+          <p class="section-subtitle">Sea cual sea tu uso, TechZone encuentra la configuración perfecta adaptada a tu realidad.</p>
+        </div>
+
+        <div class="use-cases-grid">
+
+          <article class="use-case-card fade-up use-case-gamer">
+            <div class="uc-img-wrap">
+              <img src="https://images.pexels.com/photos/30469967/pexels-photo-30469967.jpeg?auto=compress&cs=tinysrgb&w=700" alt="Setup gamer RGB" class="uc-img" loading="lazy" />
+              <div class="uc-img-overlay"></div>
+              <div class="uc-img-label">🎮 Gaming</div>
+            </div>
+            <div class="uc-body">
+              <h3 class="uc-title">Gamer</h3>
+              <p class="uc-desc">Construye la máquina de guerra definitiva. Alta tasa de fotogramas, sin cuellos de botella.</p>
+              <ul class="uc-list" role="list">
+                <li>Máximo rendimiento en FPS</li>
+                <li>Compatibilidad total de componentes</li>
+                <li>Mejor relación calidad/precio</li>
+                <li>Configuraciones para 1080p, 1440p, 4K</li>
+              </ul>
+              <a href="#registro" class="uc-link">Ver builds gaming →</a>
+            </div>
+          </article>
+
+          <article class="use-case-card fade-up use-case-dev">
+            <div class="uc-img-wrap">
+              <img src="https://images.pexels.com/photos/16129728/pexels-photo-16129728.jpeg?auto=compress&cs=tinysrgb&w=700" alt="Desarrollador con múltiples monitores" class="uc-img" loading="lazy" />
+              <div class="uc-img-overlay"></div>
+              <div class="uc-img-label">💻 Desarrollo</div>
+            </div>
+            <div class="uc-body">
+              <h3 class="uc-title">Programador</h3>
+              <p class="uc-desc">Potencia para compilar, virtualizar y ejecutar stacks completos sin que nada se congele.</p>
+              <ul class="uc-list" role="list">
+                <li>Alta productividad en multitarea</li>
+                <li>RAM optimizada para VMs y Docker</li>
+                <li>Rendimiento estable bajo carga</li>
+                <li>SSD NVMe de alta velocidad</li>
+              </ul>
+              <a href="#registro" class="uc-link">Ver builds para dev →</a>
+            </div>
+          </article>
+
+          <article class="use-case-card fade-up use-case-editor">
+            <div class="uc-img-wrap">
+              <img src="https://images.pexels.com/photos/19531353/pexels-photo-19531353.jpeg?auto=compress&cs=tinysrgb&w=700" alt="Estación de trabajo para edición de video" class="uc-img" loading="lazy" />
+              <div class="uc-img-overlay"></div>
+              <div class="uc-img-label">🎬 Creación</div>
+            </div>
+            <div class="uc-body">
+              <h3 class="uc-title">Editor de Video</h3>
+              <p class="uc-desc">Renderiza proyectos en 4K, 8K y RAW sin esperas eternas. Cada segundo cuenta.</p>
+              <ul class="uc-list" role="list">
+                <li>Renderizado rápido con GPU</li>
+                <li>Alto desempeño en After Effects</li>
+                <li>Componentes especializados</li>
+                <li>Almacenamiento y RAM masivos</li>
+              </ul>
+              <a href="#registro" class="uc-link">Ver builds para edición →</a>
+            </div>
+          </article>
+
+          <article class="use-case-card fade-up use-case-office">
+            <div class="uc-img-wrap">
+              <img src="https://images.pexels.com/photos/8606292/pexels-photo-8606292.jpeg?auto=compress&cs=tinysrgb&w=700" alt="Escritorio corporativo moderno" class="uc-img" loading="lazy" />
+              <div class="uc-img-overlay"></div>
+              <div class="uc-img-label">🏢 Oficina</div>
+            </div>
+            <div class="uc-body">
+              <h3 class="uc-title">Oficina</h3>
+              <p class="uc-desc">Equipos eficientes y económicos para trabajo diario. Sin pagar de más por lo que no necesitas.</p>
+              <ul class="uc-list" role="list">
+                <li>Economía sin sacrificar calidad</li>
+                <li>Eficiencia en tareas cotidianas</li>
+                <li>Equipos silenciosos y equilibrados</li>
+                <li>Bajo consumo energético</li>
+              </ul>
+              <a href="#registro" class="uc-link">Ver builds de oficina →</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         COMUNIDAD — T-08
+    ═════════════════════════════════════════════════ -->
+    <section class="section comunidad" id="comunidad" aria-labelledby="com-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Comunidad</div>
+          <h2 class="section-title" id="com-title">Únete a la Comunidad<br><span class="gradient-text">TechZone</span></h2>
+          <p class="section-subtitle">Una comunidad activa de entusiastas del hardware. Comparte builds, resuelve dudas y descubre las últimas tendencias tecnológicas.</p>
+        </div>
+
+        <div class="comunidad-stats fade-up">
+          <div class="com-stat-card">
+            <div class="com-stat-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M20 24v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M27 24v-2a4 4 0 0 0-3-3.87M19 4.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <div class="com-stat-num">5,000+</div>
+            <div class="com-stat-label">Usuarios registrados</div>
+          </div>
+          <div class="com-stat-card">
+            <div class="com-stat-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.5"/><polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="1.5"/><polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <div class="com-stat-num">12,000+</div>
+            <div class="com-stat-label">Configuraciones compartidas</div>
+          </div>
+          <div class="com-stat-card">
+            <div class="com-stat-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M25 17c0 1.4-1 2.5-2.5 2.5H8L3 24.5V5.5C3 4 4 3 5.5 3h17C24 3 25 4 25 5.5V17z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+            <div class="com-stat-num">3,400+</div>
+            <div class="com-stat-label">Temas en el foro</div>
+          </div>
+          <div class="com-stat-card">
+            <div class="com-stat-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2l2.5 8H24l-6.5 4.7 2.5 7.8-6.5-4.7-6.5 4.7 2.5-7.8L3 10h7.5L14 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+            <div class="com-stat-num">98%</div>
+            <div class="com-stat-label">Satisfacción de usuarios</div>
+          </div>
+        </div>
+
+        <div class="comunidad-cards fade-up">
+          <article class="com-card">
+            <div class="com-card-header">
+              <div class="com-avatar"><span>MC</span></div>
+              <div><div class="com-name">Miguel Castro</div><div class="com-time">Hace 2 horas</div></div>
+              <span class="com-tag com-tag-new">Nuevo</span>
+            </div>
+            <h4 class="com-card-title">¿RTX 4070 o RX 7800 XT para 1440p gaming?</h4>
+            <p class="com-card-preview">Estoy armando un build de 1440p y no sé si ir con NVIDIA o AMD. El precio de la 7800XT es mejor pero el DLSS me parece muy útil para los títulos más recientes...</p>
+            <div class="com-card-meta"><span>💬 24 respuestas</span><span>👁 312 vistas</span><span>❤️ 18 likes</span></div>
+          </article>
+
+          <article class="com-card com-card-featured">
+            <div class="com-card-header">
+              <div class="com-avatar com-avatar-accent"><span>LP</span></div>
+              <div><div class="com-name">Laura Pérez</div><div class="com-time">Hace 5 horas</div></div>
+              <span class="com-tag com-tag-hot">🔥 Trending</span>
+            </div>
+            <h4 class="com-card-title">Mi build Ryzen 9 7900X + RTX 4080 — Review completa tras 3 meses</h4>
+            <p class="com-card-preview">Después de 3 meses puedo decir que TechZone acertó al 100%. Temperaturas estables, sin cuellos de botella y rendimiento increíble en Premiere Pro y Blender...</p>
+            <div class="com-card-meta"><span>💬 87 respuestas</span><span>👁 1,240 vistas</span><span>❤️ 156 likes</span></div>
+          </article>
+
+          <article class="com-card">
+            <div class="com-card-header">
+              <div class="com-avatar"><span>JT</span></div>
+              <div><div class="com-name">Javier Torres</div><div class="com-time">Hace 1 día</div></div>
+              <span class="com-tag com-tag-solved">✅ Resuelto</span>
+            </div>
+            <h4 class="com-card-title">Guía definitiva: Cómo elegir fuente de poder sin errores</h4>
+            <p class="com-card-preview">Muchos se equivocan calculando el wattaje. Aquí una guía paso a paso para elegir la PSU correcta según tu GPU y CPU sin malgastar dinero ni arriesgar componentes...</p>
+            <div class="com-card-meta"><span>💬 41 respuestas</span><span>👁 876 vistas</span><span>❤️ 93 likes</span></div>
+          </article>
+        </div>
+
+        <div class="comunidad-cta fade-up">
+          <a href="#registro" class="btn-primary btn-lg">
+            Explorar Comunidad
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         GALERÍA TECNOLÓGICA
+    ═════════════════════════════════════════════════ -->
+    <section class="section galeria" id="galeria" aria-labelledby="gal-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Galería</div>
+          <h2 class="section-title" id="gal-title">Inspírate con los mejores setups</h2>
+          <p class="section-subtitle">Builds y estaciones de trabajo elegidas por nuestra comunidad. Tu próxima configuración comienza aquí.</p>
+        </div>
+
+        <div class="gallery-grid fade-up">
+          <div class="gal-item gal-large">
+            <img src="https://images.pexels.com/photos/32260117/pexels-photo-32260117.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Setup gaming multimonitor con RGB" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>Gaming Multimonitor</span></div>
+          </div>
+          <div class="gal-item">
+            <img src="https://images.pexels.com/photos/16129728/pexels-photo-16129728.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Programador con tres monitores" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>Dev Workstation</span></div>
+          </div>
+          <div class="gal-item">
+            <img src="https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Componentes de hardware premium" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>Componentes Premium</span></div>
+          </div>
+          <div class="gal-item">
+            <img src="https://images.pexels.com/photos/19531353/pexels-photo-19531353.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Edición de video profesional" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>Edición Pro</span></div>
+          </div>
+          <div class="gal-item gal-large">
+            <img src="https://images.pexels.com/photos/36706460/pexels-photo-36706460.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Workspace con código en pantallas" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>Coder's Workspace</span></div>
+          </div>
+          <div class="gal-item">
+            <img src="https://images.pexels.com/photos/8622911/pexels-photo-8622911.jpeg?auto=compress&cs=tinysrgb&w=500" alt="GPU NVIDIA RTX" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>RTX Series</span></div>
+          </div>
+          <div class="gal-item">
+            <img src="https://images.pexels.com/photos/30469973/pexels-photo-30469973.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Monitor gaming" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>Gaming Display</span></div>
+          </div>
+          <div class="gal-item">
+            <img src="https://images.pexels.com/photos/36706460/pexels-photo-36706460.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Edición de video en computadora" class="gal-img" loading="lazy" />
+            <div class="gal-overlay"><span>Video Editing</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         TESTIMONIOS
+    ═════════════════════════════════════════════════ -->
+    <section class="section testimonios" id="testimonios" aria-labelledby="test-title">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Testimonios</div>
+          <h2 class="section-title" id="test-title">Lo que dicen nuestros usuarios</h2>
+          <p class="section-subtitle">Miles de personas ya confían en TechZone para sus decisiones de hardware.</p>
+        </div>
+
+        <div class="testimonials-grid">
+          <article class="testimonial-card fade-up">
+            <div class="test-stars" aria-label="5 estrellas">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+            </div>
+            <blockquote class="test-quote">"Llevaba semanas leyendo foros sin llegar a nada. Con TechZone en 8 minutos tenía una build completa, compatible y dentro de mi presupuesto. Increíble."</blockquote>
+            <div class="test-author">
+              <div class="test-avatar" aria-hidden="true"><span>CR</span></div>
+              <div class="test-info">
+                <strong class="test-name">Carlos Rodríguez</strong>
+                <span class="test-role">Estudiante de Ingeniería · Bogotá</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="testimonial-card fade-up testimonial-featured">
+            <div class="test-stars" aria-label="5 estrellas">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#C084FC" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#C084FC" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#C084FC" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#C084FC" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#C084FC" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+            </div>
+            <blockquote class="test-quote">"Como programadora necesitaba una máquina que aguantara VMs, Docker y compilaciones pesadas. TechZone me dio exactamente lo que buscaba al mejor precio del mercado."</blockquote>
+            <div class="test-author">
+              <div class="test-avatar test-avatar-accent" aria-hidden="true"><span>DM</span></div>
+              <div class="test-info">
+                <strong class="test-name">Diana Morales</strong>
+                <span class="test-role">Desarrolladora Senior · México DF</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="testimonial-card fade-up">
+            <div class="test-stars" aria-label="5 estrellas">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="#A855F7" aria-hidden="true"><path d="M7 1l1.5 4H13L9.5 8l1.5 4L7 9.5 3 12l1.5-4L1 5h4.5L7 1z"/></svg>
+            </div>
+            <blockquote class="test-quote">"Edito video en 4K y necesitaba una workstation que no me hiciera esperar. La build que me recomendó TechZone redujo mis tiempos de render a la mitad."</blockquote>
+            <div class="test-author">
+              <div class="test-avatar" aria-hidden="true"><span>AP</span></div>
+              <div class="test-info">
+                <strong class="test-name">Andrés Pérez</strong>
+                <span class="test-role">Videógrafo Freelance · Medellín</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════
+         CTA FINAL
+    ═════════════════════════════════════════════════ -->
+    <section class="section cta-section" id="registro" aria-labelledby="cta-title">
+      <div class="cta-bg" aria-hidden="true"><div class="cta-glow"></div></div>
+      <div class="container">
+        <div class="cta-content fade-up">
+          <div class="section-label">Únete ahora</div>
+          <h2 class="cta-title" id="cta-title">
+            Comienza a construir tu próxima<br />
+            <span class="gradient-text">computadora hoy</span>
+          </h2>
+          <p class="cta-subtitle">Únete a cientos de usuarios que ya utilizan TechZone para tomar mejores decisiones tecnológicas. Gratis para siempre en el plan base.</p>
+          <div class="cta-actions">
+            <a href="#" class="btn-primary btn-xl btn-glow">
+              Crear Cuenta Gratis
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3.75 9h10.5M9.75 4.5 14.25 9l-4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <p class="cta-disclaimer">Sin tarjeta de crédito · Sin límite de tiempo · Cancela cuando quieras</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ════════════════════════════════════════════════
+       FOOTER
+  ═════════════════════════════════════════════════ -->
+  <footer class="footer" id="contacto" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+
+        <div class="footer-brand">
+          <a href="#inicio" class="footer-logo" aria-label="TechZone inicio">
+            <img src="img/logo-techzone.png" alt="TechZone — PCs Colombia" class="logo-img logo-img-footer" />
+          </a>
+          <p class="footer-desc">Plataforma inteligente de asesoramiento de hardware. Encuentra la configuración perfecta para ti.</p>
+          <div class="footer-social" aria-label="Redes sociales">
+            <a href="#" class="social-link" aria-label="Twitter de TechZone"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a href="#" class="social-link" aria-label="GitHub de TechZone"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a href="#" class="social-link" aria-label="Discord de TechZone"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z" fill="currentColor"/></svg></a>
+            <a href="#" class="social-link" aria-label="LinkedIn de TechZone"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="1.5"/></svg></a>
+          </div>
+        </div>
+
+        <nav class="footer-col" aria-label="Navegación">
+          <h4 class="footer-heading">Navegación</h4>
+          <ul class="footer-links" role="list">
+            <li><a href="#inicio"          class="footer-link">Inicio</a></li>
+            <li><a href="#caracteristicas" class="footer-link">Características</a></li>
+            <li><a href="#gaming"          class="footer-link">Gaming</a></li>
+            <li><a href="#beneficios"      class="footer-link">Beneficios</a></li>
+            <li><a href="#comunidad"       class="footer-link">Comunidad</a></li>
+          </ul>
+        </nav>
+
+        <nav class="footer-col" aria-label="Recursos">
+          <h4 class="footer-heading">Recursos</h4>
+          <ul class="footer-links" role="list">
+            <li><a href="#componentes" class="footer-link">Componentes</a></li>
+            <li><a href="#hardware"    class="footer-link">Hardware</a></li>
+            <li><a href="#casos-uso"   class="footer-link">Casos de Uso</a></li>
+            <li><a href="#galeria"     class="footer-link">Galería</a></li>
+            <li><a href="#registro"    class="footer-link">Crear cuenta</a></li>
+          </ul>
+        </nav>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Contacto</h4>
+          <ul class="footer-links" role="list">
+            <li>
+              <a href="mailto:hola@techzone.app" class="footer-link footer-contact">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 3h12a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.2"/><polyline points="14,4 7,8.5 0,4" stroke="currentColor" stroke-width="1.2"/></svg>
+                hola@techzone.app
+              </a>
+            </li>
+            <li>
+              <a href="#" class="footer-link footer-contact">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 1C4.2 1 2 3.2 2 6c0 3.5 5 8 5 8s5-4.5 5-8c0-2.8-2.2-5-5-5z" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="6" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+                Latam · Remoto
+              </a>
+            </li>
+          </ul>
+          <div class="footer-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>Todos los sistemas operativos</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 TechZone. Todos los derechos reservados.</p>
+        <div class="footer-legal">
+          <a href="#" class="footer-link-sm">Privacidad</a>
+          <a href="#" class="footer-link-sm">Términos</a>
+          <a href="#" class="footer-link-sm">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════
+       CHATBOT FLOTANTE — T-10
+  ═════════════════════════════════════════════════ -->
+  <div class="chatbot-wrapper" id="chatbotWrapper" role="complementary" aria-label="Asistente virtual TechZone">
+    <div class="chatbot-panel" id="chatbotPanel" aria-hidden="true" role="dialog" aria-labelledby="chatbot-heading">
+      <div class="chatbot-header">
+        <div class="chatbot-header-info">
+          <div class="chatbot-avatar" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H17l-4.5 3.3 1.7 5.3L10 13l-5.2 3 1.7-5.3L2 7.4h5.2L10 2z" fill="#A855F7"/></svg>
+          </div>
+          <div>
+            <div class="chatbot-name" id="chatbot-heading">TechZone AI</div>
+            <div class="chatbot-status"><span class="status-dot" aria-hidden="true"></span>En línea</div>
+          </div>
+        </div>
+        <button class="chatbot-close" id="chatbotClose" aria-label="Cerrar chat">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages" aria-live="polite">
+        <div class="chat-msg chat-bot">
+          <div class="chat-bubble"><p>¡Hola! Soy el asistente virtual de <strong>TechZone</strong>. ¿Qué tipo de PC estás buscando? 🎮</p></div>
+        </div>
+        <div class="chat-quick-options" id="chatQuickOptions" role="group" aria-label="Opciones rápidas">
+          <button class="chat-option" data-query="gamer">🎮 PC Gamer</button>
+          <button class="chat-option" data-query="oficina">💼 PC Oficina</button>
+          <button class="chat-option" data-query="programacion">💻 Programación</button>
+          <button class="chat-option" data-query="diseno">🎨 Diseño</button>
+        </div>
+      </div>
+      <div class="chatbot-input-wrap">
+        <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Escribe tu pregunta..." aria-label="Escribe tu mensaje" maxlength="200"/>
+        <button class="chatbot-send" id="chatbotSend" aria-label="Enviar mensaje">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 8H2M10 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="chatbot-toggle" id="chatbotToggle" aria-label="Abrir asistente virtual" aria-expanded="false">
+      <svg class="chatbot-icon-chat" width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M20 13.5c0 1.2-.8 2.5-2.5 2.5H7L2 21V5.5C2 4 3 3 4.5 3h13C19.2 3 20 4 20 5.5v8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <svg class="chatbot-icon-close" width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 4l14 14M18 4 4 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="chatbot-notif" aria-hidden="true">1</span>
+    </button>
+  </div>
+
+  <script>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    const navToggle = document.getElementById('navToggle');
+    const navLinks  = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', isOpen);
+      navToggle.classList.toggle('active', isOpen);
+    });
+    navLinks.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        navToggle.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', false);
+      });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', e => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 4) * 0.07}s`;
+      observer.observe(el);
+    });
+
+    // ─── CHATBOT ─────────────────────────────────────────
+    const chatbotToggle  = document.getElementById('chatbotToggle');
+    const chatbotWrapper = document.getElementById('chatbotWrapper');
+    const chatbotClose   = document.getElementById('chatbotClose');
+    const chatbotPanel   = document.getElementById('chatbotPanel');
+    const chatbotInput   = document.getElementById('chatbotInput');
+    const chatbotSend    = document.getElementById('chatbotSend');
+    const chatMessages   = document.getElementById('chatbotMessages');
+
+    const cbResponses = {
+      gamer: {
+        text: '🎮 Para una <strong>PC Gamer</strong>, analizamos tu resolución objetivo y presupuesto. ¿En qué rango de precio estás pensando?',
+        opts: ['$500–$800 USD', '$800–$1,500 USD', '$1,500+ USD']
+      },
+      oficina: {
+        text: '💼 Para <strong>trabajo de oficina</strong>, optimizamos eficiencia y economía. Ideal para Office, videollamadas y tareas diarias. ¿Qué necesitas principalmente?',
+        opts: ['Solo quiero la torre', 'Setup completo', 'Laptop para llevar']
+      },
+      programacion: {
+        text: '💻 Excelente. Para <strong>programación</strong>, priorizamos RAM (32GB+), CPU multinúcleo y SSD NVMe rápido. ¿Qué tipo de desarrollo haces?',
+        opts: ['Web / Frontend', 'Backend / DevOps', 'IA / Data Science', 'Apps móviles']
+      },
+      diseno: {
+        text: '🎨 Para <strong>diseño y edición</strong>, necesitas GPU con buen rendimiento en render. ¿Qué software usas principalmente?',
+        opts: ['Adobe Photoshop / Illustrator', 'Premiere / After Effects', 'Blender / 3D', 'CAD / Arquitectura']
+      },
+      presupuesto_bajo: {
+        text: '💰 Con <strong>$500–$800 USD</strong> recomendamos builds con Ryzen 5 + RTX 3060 que dan excelentes FPS en 1080p. ¡Muy buena relación calidad/precio!',
+        opts: ['Ver builds disponibles', 'Ajustar presupuesto', 'Registrarme gratis']
+      },
+      presupuesto_medio: {
+        text: '🔥 Rango ideal. Con <strong>$800–$1,500 USD</strong> accedes a builds 1440p de alto rendimiento con Ryzen 7 o Intel i7. ¡La opción más popular!',
+        opts: ['Ver builds disponibles', 'Comparar opciones', 'Registrarme gratis']
+      },
+      presupuesto_alto: {
+        text: '🚀 Con <strong>$1,500+ USD</strong> tienes builds con RTX 4080/4090 para 4K gaming, streaming profesional y trabajo sin límites.',
+        opts: ['Ver builds Pro', 'Ver workstations', 'Registrarme gratis']
+      },
+      default: {
+        text: '¡Gracias por tu mensaje! Puedo ayudarte a encontrar la PC perfecta. ¿Cuál es tu principal caso de uso?',
+        opts: ['🎮 PC Gamer', '💼 PC Oficina', '💻 Programación', '🎨 Diseño']
+      }
+    };
+
+    function addMsg(html, type = 'bot') {
+      const wrap = document.createElement('div');
+      wrap.className = `chat-msg chat-${type}`;
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.innerHTML = html;
+      wrap.appendChild(bubble);
+      chatMessages.appendChild(wrap);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+      const el = document.createElement('div');
+      el.className = 'chat-msg chat-bot';
+      el.id = 'cbTyping';
+      el.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+      chatMessages.appendChild(el);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addOpts(opts) {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-quick-options';
+      opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'chat-option';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => { wrap.remove(); dispatch(opt, true); });
+        wrap.appendChild(btn);
+      });
+      chatMessages.appendChild(wrap);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function respond(key) {
+      showTyping();
+      setTimeout(() => {
+        document.getElementById('cbTyping')?.remove();
+        const r = cbResponses[key] || cbResponses.default;
+        addMsg(r.text);
+        setTimeout(() => addOpts(r.opts), 250);
+      }, 900);
+    }
+
+    function dispatch(text, fromBtn = false) {
+      if (!fromBtn) addMsg(text, 'user');
+      const lc = text.toLowerCase();
+      if (lc.includes('gamer') || lc.includes('gaming') || lc === '🎮 pc gamer') respond('gamer');
+      else if (lc.includes('oficina') || lc.includes('trabajo') || lc === '💼 pc oficina') respond('oficina');
+      else if (lc.includes('program') || lc.includes('develop') || lc.includes('backend') || lc.includes('frontend') || lc.includes('web') || lc.includes('ia') || lc.includes('apps')) respond('programacion');
+      else if (lc.includes('dise') || lc.includes('adobe') || lc.includes('blender') || lc.includes('cad') || lc === '🎨 diseño') respond('diseno');
+      else if (lc.includes('500') || lc.includes('800') || lc.includes('bajo')) respond('presupuesto_bajo');
+      else if (lc.includes('1,5') || lc.includes('1500') || lc.includes('medio')) respond('presupuesto_medio');
+      else if (lc.includes('pro') || lc.includes('alto') || lc.includes('3,000') || lc.includes('workstation')) respond('presupuesto_alto');
+      else if (lc.includes('registr') || lc.includes('gratis') || lc.includes('ver build') || lc.includes('comparar')) {
+        showTyping();
+        setTimeout(() => {
+          document.getElementById('cbTyping')?.remove();
+          addMsg('¡Perfecto! Crea tu cuenta gratis y accede a todas las recomendaciones personalizadas. <a href="#registro" style="color:var(--accent);font-weight:600">Crear cuenta →</a>');
+        }, 700);
+      } else respond('default');
+    }
+
+    chatbotToggle.addEventListener('click', () => {
+      const open = chatbotWrapper.classList.toggle('open');
+      chatbotToggle.setAttribute('aria-expanded', open);
+      chatbotPanel.setAttribute('aria-hidden', !open);
+    });
+
+    chatbotClose.addEventListener('click', () => {
+      chatbotWrapper.classList.remove('open');
+      chatbotToggle.setAttribute('aria-expanded', false);
+      chatbotPanel.setAttribute('aria-hidden', true);
+    });
+
+    chatbotSend.addEventListener('click', sendMsg);
+    chatbotInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+
+    function sendMsg() {
+      const text = chatbotInput.value.trim();
+      if (!text) return;
+      document.getElementById('chatQuickOptions')?.remove();
+      addMsg(text, 'user');
+      chatbotInput.value = '';
+      dispatch(text);
+    }
+
+    document.querySelectorAll('.chat-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('chatQuickOptions')?.remove();
+        addMsg(btn.textContent, 'user');
+        dispatch(btn.dataset.query || btn.textContent);
+      });
+    });
+  </script>
+</body>
+</html>
