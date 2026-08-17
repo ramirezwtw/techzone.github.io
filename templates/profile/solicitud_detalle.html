@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi solicitud — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+{% from "_macros.html" import status_badge %}
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        <a href="{{ url_for('profile.index') }}" class="btn-secondary btn-sm">← Mi perfil</a>
+        <a href="{{ url_for('auth.logout') }}" class="btn-primary btn-sm">Cerrar sesión</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container">
+      {% include "_flash.html" %}
+
+      <div class="section-label">Solicitud #{{ r.id }}</div>
+      <h1 class="profile-title">Tu solicitud de asesoría {{ status_badge(r.status) }}</h1>
+      <p class="section-subtitle" style="text-align:left;">Enviada el {{ r.created_at.strftime('%Y-%m-%d') }}</p>
+
+      {% if r.has_recommendation %}
+      <div class="recommendation-card">
+        <div class="section-label">Recomendación de TechZone</div>
+        <h2 class="profile-card-title">Tu PC recomendada</h2>
+        <div class="rec-components-grid">
+          {% for label, value in [
+            ('Procesador', r.rec_cpu), ('Tarjeta gráfica', r.rec_gpu), ('Placa madre', r.rec_motherboard),
+            ('RAM', r.rec_ram), ('Almacenamiento', r.rec_storage), ('Fuente', r.rec_psu),
+            ('Gabinete', r.rec_case), ('Refrigeración', r.rec_cooling), ('Monitor', r.rec_monitor),
+            ('Otros', r.rec_other),
+          ] %}
+          {% if value %}
+          <div class="rec-component"><span class="spec-label">{{ label }}</span><span>{{ value }}</span></div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% if r.rec_price_estimate %}
+        <div class="rec-price">Precio estimado: <strong>${{ '%.2f'|format(r.rec_price_estimate) }}</strong></div>
+        {% endif %}
+        <p class="rec-explanation">{{ r.rec_explanation }}</p>
+        <p class="form-hint">Recomendación generada el {{ r.rec_created_at.strftime('%Y-%m-%d') }}</p>
+      </div>
+      {% else %}
+      <div class="profile-empty">
+        <p>Tu solicitud está en estado {{ status_badge(r.status) }}. Nuestro equipo todavía está preparando tu recomendación.</p>
+      </div>
+      {% endif %}
+
+      <h2 class="profile-section-title">Detalle de tu solicitud</h2>
+      <div class="profile-info-card">
+        <div class="profile-info-row"><span>¿Para qué la necesitas?</span><strong>{{ r.purpose }}{% if r.purpose_other %} ({{ r.purpose_other }}){% endif %}</strong></div>
+        <div class="profile-info-row"><span>Presupuesto</span><strong>{{ r.budget }}</strong></div>
+        {% if r.games %}<div class="profile-info-row"><span>Juegos</span><strong>{{ r.games }}</strong></div>{% endif %}
+        {% if r.programs %}<div class="profile-info-row"><span>Programas</span><strong>{{ r.programs }}</strong></div>{% endif %}
+        <div class="profile-info-row"><span>¿Ya tiene componentes?</span><strong>{{ 'Sí' if r.has_components else 'No, quiere comprar todo' }}</strong></div>
+        <div class="profile-info-row"><span>Preferencia CPU</span><strong>{{ r.pref_cpu_brand }}</strong></div>
+        <div class="profile-info-row"><span>Preferencia GPU</span><strong>{{ r.pref_gpu_brand }}</strong></div>
+        <div class="profile-info-row"><span>Estética</span><strong>{{ r.pref_aesthetics }}</strong></div>
+        <div class="profile-info-row"><span>Color</span><strong>{{ r.pref_color_other or r.pref_color }}</strong></div>
+        <div class="profile-info-row"><span>Tamaño de gabinete</span><strong>{{ r.pref_size }}</strong></div>
+        {% if r.peripherals %}<div class="profile-info-row"><span>Periféricos</span><strong>{{ r.peripherals }}</strong></div>{% endif %}
+        <div class="profile-info-row"><span>Descripción</span><strong>{{ r.description }}</strong></div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

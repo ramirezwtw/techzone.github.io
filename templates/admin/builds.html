@@ -1,0 +1,53 @@
+{% extends "admin/layout.html" %}
+{% block title %}Builds{% endblock %}
+{% block page_title %}Builds destacadas (Gaming){% endblock %}
+
+{% block content %}
+<div class="admin-actions-bar">
+  <a href="{{ url_for('admin.build_new') }}" class="btn-primary">+ Nueva build</a>
+</div>
+
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Imagen</th>
+        <th>Nivel</th>
+        <th>Nombre</th>
+        <th>Presupuesto</th>
+        <th>Destacada</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in builds %}
+      <tr>
+        <td><img src="{{ b.image_url }}" alt="{{ b.name }}" class="admin-thumb" /></td>
+        <td>{{ b.tier_emoji }} {{ b.tier }}</td>
+        <td>{{ b.name }}</td>
+        <td>{{ b.budget_label }}</td>
+        <td>{{ 'Sí' if b.featured else '—' }}</td>
+        <td>
+          {% if b.active %}<span class="badge badge-active">Activa</span>{% else %}<span class="badge badge-inactive">Inactiva</span>{% endif %}
+        </td>
+        <td class="admin-row-actions">
+          <a href="{{ url_for('main.index') }}" class="btn-secondary btn-sm">Ver</a>
+          <a href="{{ url_for('admin.build_edit', build_id=b.id) }}" class="btn-secondary btn-sm">Editar</a>
+          <form method="post" action="{{ url_for('admin.build_toggle_active', build_id=b.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-secondary btn-sm">{{ 'Desactivar' if b.active else 'Activar' }}</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.build_delete', build_id=b.id) }}" onsubmit="return confirm('¿Eliminar {{ b.name }} definitivamente?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-danger btn-sm">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">No hay builds registradas todavía.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

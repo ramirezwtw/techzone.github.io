@@ -1,0 +1,55 @@
+{% extends "admin/layout.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block page_title %}Usuarios{% endblock %}
+
+{% block content %}
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Registrado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.user_change_role', user_id=u.id) }}" class="admin-inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <select name="role" class="form-input form-input-sm" onchange="this.form.submit()">
+              <option value="user" {{ 'selected' if u.role == 'user' else '' }}>Usuario</option>
+              <option value="admin" {{ 'selected' if u.role == 'admin' else '' }}>Administrador</option>
+            </select>
+          </form>
+        </td>
+        <td>
+          {% if u.active %}
+          <span class="badge badge-active">Activo</span>
+          {% else %}
+          <span class="badge badge-inactive">Inactivo</span>
+          {% endif %}
+        </td>
+        <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+        <td class="admin-row-actions">
+          <form method="post" action="{{ url_for('admin.user_toggle_active', user_id=u.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-secondary btn-sm" {{ 'disabled' if u.id == session.get('user_id') else '' }}>
+              {{ 'Desactivar' if u.active else 'Activar' }}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No hay usuarios registrados todavía.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

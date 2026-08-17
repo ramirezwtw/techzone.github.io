@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ayúdame a armar mi PC — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        <a href="{{ url_for('profile.index') }}" class="btn-secondary btn-sm">← Mi perfil</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container container-narrow">
+      {% include "_flash.html" %}
+
+      <div class="section-label">Asesoría personalizada</div>
+      <h1 class="profile-title">¿No sabes qué PC comprar? Nosotros te ayudamos a armarla.</h1>
+      <p class="section-subtitle" style="text-align:left;margin-bottom:32px;">Cuéntanos para qué necesitas tu computador, cuál es tu presupuesto y qué características buscas. Nuestro equipo analizará tu solicitud y te recomendará una configuración.</p>
+
+      <form method="post" class="build-form" novalidate id="buildForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">¿Para qué necesitas tu PC?</legend>
+          <div class="checkbox-grid">
+            {% for opt in purpose_options %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="purpose" value="{{ opt }}" class="js-purpose" data-opt="{{ opt }}" {{ 'checked' if opt in selected_purposes else '' }} />
+              {{ opt }}
+            </label>
+            {% endfor %}
+          </div>
+          <div class="form-group conditional-section" id="purposeOtherWrap">
+            <label class="form-label" for="purpose_other">Especifica el uso</label>
+            <input class="form-input" type="text" id="purpose_other" name="purpose_other" value="{{ form.get('purpose_other', '') }}" />
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">¿Cuál es tu presupuesto aproximado?</legend>
+          <div class="form-group">
+            <select class="form-input" id="budget_range" name="budget_range">
+              <option value="">Selecciona un rango</option>
+              {% for range in budget_ranges %}
+              <option value="{{ range }}" {{ 'selected' if form.get('budget_range') == range else '' }}>{{ range }}</option>
+              {% endfor %}
+              <option value="Otro (especificar)" {{ 'selected' if form.get('budget_range') == 'Otro (especificar)' else '' }}>Otro (especificar)</option>
+            </select>
+          </div>
+          <div class="form-group conditional-section" id="budgetCustomWrap">
+            <label class="form-label" for="budget_custom">Indica tu presupuesto</label>
+            <input class="form-input" type="text" id="budget_custom" name="budget_custom" value="{{ form.get('budget_custom', '') }}" placeholder="Ej: $4.200.000" />
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset conditional-section" id="gamesSection">
+          <legend class="form-legend">¿Qué juegos quieres jugar?</legend>
+          <div class="checkbox-grid">
+            {% for opt in game_options %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="games" value="{{ opt }}" {{ 'checked' if opt in selected_games else '' }} />
+              {{ opt }}
+            </label>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="games_other">Otros juegos (escríbelos separados por coma)</label>
+            <input class="form-input" type="text" id="games_other" name="games_other" value="{{ form.get('games_other', '') }}" />
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">¿Qué programas utilizas o piensas utilizar?</legend>
+          <div class="checkbox-grid">
+            {% for opt in program_options %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="programs" value="{{ opt }}" {{ 'checked' if opt in selected_programs else '' }} />
+              {{ opt }}
+            </label>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="programs_other">Otros programas</label>
+            <input class="form-input" type="text" id="programs_other" name="programs_other" value="{{ form.get('programs_other', '') }}" />
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">¿Ya tienes algún componente?</legend>
+          <div class="radio-grid">
+            <label class="radio-item"><input type="radio" name="has_components" value="no" class="js-has-components" {{ 'checked' if form.get('has_components', 'no') != 'si' else '' }} /> No, quiero comprar todo.</label>
+            <label class="radio-item"><input type="radio" name="has_components" value="si" class="js-has-components" {{ 'checked' if form.get('has_components') == 'si' else '' }} /> Sí, tengo algunos componentes.</label>
+          </div>
+
+          <div class="conditional-section" id="currentComponentsWrap">
+            <div class="admin-form-row">
+              <div class="form-group"><label class="form-label" for="current_cpu">Procesador</label><input class="form-input" type="text" id="current_cpu" name="current_cpu" value="{{ form.get('current_cpu', '') }}" /></div>
+              <div class="form-group"><label class="form-label" for="current_gpu">Tarjeta gráfica</label><input class="form-input" type="text" id="current_gpu" name="current_gpu" value="{{ form.get('current_gpu', '') }}" /></div>
+            </div>
+            <div class="admin-form-row">
+              <div class="form-group"><label class="form-label" for="current_ram">RAM</label><input class="form-input" type="text" id="current_ram" name="current_ram" value="{{ form.get('current_ram', '') }}" /></div>
+              <div class="form-group"><label class="form-label" for="current_storage">Disco</label><input class="form-input" type="text" id="current_storage" name="current_storage" value="{{ form.get('current_storage', '') }}" /></div>
+            </div>
+            <div class="admin-form-row">
+              <div class="form-group"><label class="form-label" for="current_psu">Fuente</label><input class="form-input" type="text" id="current_psu" name="current_psu" value="{{ form.get('current_psu', '') }}" /></div>
+              <div class="form-group"><label class="form-label" for="current_motherboard">Placa madre</label><input class="form-input" type="text" id="current_motherboard" name="current_motherboard" value="{{ form.get('current_motherboard', '') }}" /></div>
+            </div>
+            <div class="admin-form-row">
+              <div class="form-group"><label class="form-label" for="current_case">Gabinete</label><input class="form-input" type="text" id="current_case" name="current_case" value="{{ form.get('current_case', '') }}" /></div>
+              <div class="form-group"><label class="form-label" for="current_monitor">Monitor</label><input class="form-input" type="text" id="current_monitor" name="current_monitor" value="{{ form.get('current_monitor', '') }}" /></div>
+            </div>
+            <div class="form-group"><label class="form-label" for="current_other">Otros</label><input class="form-input" type="text" id="current_other" name="current_other" value="{{ form.get('current_other', '') }}" /></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">Preferencias</legend>
+
+          <p class="form-label">Procesador</p>
+          <div class="radio-grid">
+            {% for opt in ['Intel', 'AMD', 'Sin preferencia'] %}
+            <label class="radio-item"><input type="radio" name="pref_cpu_brand" value="{{ opt }}" {{ 'checked' if form.get('pref_cpu_brand', 'Sin preferencia') == opt else '' }} /> {{ opt }}</label>
+            {% endfor %}
+          </div>
+
+          <p class="form-label">Tarjeta gráfica</p>
+          <div class="radio-grid">
+            {% for opt in ['NVIDIA', 'AMD', 'Sin preferencia'] %}
+            <label class="radio-item"><input type="radio" name="pref_gpu_brand" value="{{ opt }}" {{ 'checked' if form.get('pref_gpu_brand', 'Sin preferencia') == opt else '' }} /> {{ opt }}</label>
+            {% endfor %}
+          </div>
+
+          <p class="form-label">Apariencia</p>
+          <div class="radio-grid">
+            {% for opt in ['RGB', 'Sin RGB', 'Me es indiferente'] %}
+            <label class="radio-item"><input type="radio" name="pref_aesthetics" value="{{ opt }}" {{ 'checked' if form.get('pref_aesthetics', 'Me es indiferente') == opt else '' }} /> {{ opt }}</label>
+            {% endfor %}
+          </div>
+
+          <p class="form-label">Color</p>
+          <div class="radio-grid">
+            {% for opt in ['Negro', 'Blanco', 'Otro', 'Me es indiferente'] %}
+            <label class="radio-item"><input type="radio" name="pref_color" value="{{ opt }}" class="js-color" {{ 'checked' if form.get('pref_color', 'Me es indiferente') == opt else '' }} /> {{ opt }}</label>
+            {% endfor %}
+          </div>
+          <div class="form-group conditional-section" id="colorOtherWrap">
+            <label class="form-label" for="pref_color_other">Especifica el color</label>
+            <input class="form-input" type="text" id="pref_color_other" name="pref_color_other" value="{{ form.get('pref_color_other', '') }}" />
+          </div>
+
+          <p class="form-label">Tamaño</p>
+          <div class="radio-grid">
+            {% for opt in ['ATX', 'Micro ATX', 'Mini ITX', 'Me es indiferente'] %}
+            <label class="radio-item"><input type="radio" name="pref_size" value="{{ opt }}" {{ 'checked' if form.get('pref_size', 'Me es indiferente') == opt else '' }} /> {{ opt }}</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">¿Qué periféricos necesitas comprar?</legend>
+          <div class="checkbox-grid">
+            {% for opt in peripheral_options %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="peripherals" value="{{ opt }}" {{ 'checked' if opt in selected_peripherals else '' }} />
+              {{ opt }}
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">Cuéntanos exactamente qué estás buscando</legend>
+          <div class="form-group">
+            <textarea class="form-input" name="description" rows="5" placeholder="Ejemplo: Quiero un PC para jugar GTA VI y trabajar con edición de video. Mi presupuesto es de $5.000.000 y prefiero un gabinete blanco con RGB." required>{{ form.get('description', '') }}</textarea>
+          </div>
+        </fieldset>
+
+        <div class="admin-form-actions">
+          <button type="submit" class="btn-primary btn-xl btn-glow">Enviar solicitud</button>
+          <a href="{{ url_for('profile.index') }}" class="btn-secondary btn-lg">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    function bindToggle(triggerSelector, targetId, matchFn) {
+      const targets = document.querySelectorAll(triggerSelector);
+      const box = document.getElementById(targetId);
+      function update() {
+        const shouldShow = Array.from(targets).some(matchFn);
+        box.classList.toggle('conditional-visible', shouldShow);
+      }
+      targets.forEach(el => el.addEventListener('change', update));
+      update();
+    }
+
+    bindToggle('.js-purpose', 'purposeOtherWrap', el => el.dataset.opt === 'Otro' && el.checked);
+    bindToggle('.js-purpose', 'gamesSection', el => el.dataset.opt === 'Gaming' && el.checked);
+    bindToggle('.js-has-components', 'currentComponentsWrap', el => el.value === 'si' && el.checked);
+    bindToggle('.js-color', 'colorOtherWrap', el => el.value === 'Otro' && el.checked);
+
+    const budgetSelect = document.getElementById('budget_range');
+    const budgetCustomWrap = document.getElementById('budgetCustomWrap');
+    function updateBudget() {
+      budgetCustomWrap.classList.toggle('conditional-visible', budgetSelect.value === 'Otro (especificar)');
+    }
+    budgetSelect.addEventListener('change', updateBudget);
+    updateBudget();
+  </script>
+
+</body>
+</html>

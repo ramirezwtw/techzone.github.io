@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ b.name }} — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        <a href="{{ url_for('main.index') }}#gaming" class="btn-secondary btn-sm">← Ver todas las builds</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container container-narrow">
+
+      <div class="section-label">{{ b.tier_emoji }} {{ b.tier }}</div>
+      <h1 class="profile-title">{{ b.name }}</h1>
+
+      <div class="build-detail-img-wrap">
+        <img src="{{ b.image_url }}" alt="{{ b.name }}" class="build-detail-img" />
+      </div>
+
+      <div class="profile-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="profile-info-card">
+          <h3 class="profile-card-title">Especificaciones</h3>
+          <div class="profile-info-row"><span>Presupuesto</span><strong>{{ b.budget_label }}</strong></div>
+          <div class="profile-info-row"><span>Procesador</span><strong>{{ b.cpu }}</strong></div>
+          <div class="profile-info-row"><span>Tarjeta gráfica</span><strong>{{ b.gpu }}</strong></div>
+          <div class="profile-info-row"><span>RAM</span><strong>{{ b.ram }}</strong></div>
+          <div class="profile-info-row"><span>Almacenamiento</span><strong>{{ b.storage }}</strong></div>
+        </div>
+
+        <div class="profile-cta-card">
+          <h3>¿Te gusta esta build?</h3>
+          <p>Rendimiento esperado: {{ b.performance_note }}</p>
+          <div class="perf-bar"><div class="perf-fill" style="width:{{ b.performance_pct }}%"></div></div>
+          <p>Solicita esta configuración y nuestro equipo la ajusta a tu presupuesto y necesidades exactas.</p>
+          <a href="{{ url_for('profile.armar_pc', purpose='Gaming', budget=b.budget_label, build=b.name) }}" class="btn-primary btn-lg btn-glow">Solicitar esta build</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

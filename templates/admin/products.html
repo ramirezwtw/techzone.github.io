@@ -1,0 +1,56 @@
+{% extends "admin/layout.html" %}
+{% block title %}Productos{% endblock %}
+{% block page_title %}Productos{% endblock %}
+
+{% block content %}
+<div class="admin-actions-bar">
+  <a href="{{ url_for('admin.product_new') }}" class="btn-primary">+ Nuevo producto</a>
+</div>
+
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Marca</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td><img src="{{ p.image_url }}" alt="{{ p.name }}" class="admin-thumb" /></td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.brand }}</td>
+        <td>${{ '%.2f'|format(p.price) }}</td>
+        <td>{{ p.stock }}{% if p.stock <= 0 %} <span class="badge badge-warning">Sin stock</span>{% endif %}</td>
+        <td>
+          {% if p.active %}
+          <span class="badge badge-active">Activo</span>
+          {% else %}
+          <span class="badge badge-inactive">Inactivo</span>
+          {% endif %}
+        </td>
+        <td class="admin-row-actions">
+          <a href="{{ url_for('admin.product_edit', product_id=p.id) }}" class="btn-secondary btn-sm">Editar</a>
+          <form method="post" action="{{ url_for('admin.product_toggle_active', product_id=p.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-secondary btn-sm">{{ 'Desactivar' if p.active else 'Activar' }}</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.product_delete', product_id=p.id) }}" onsubmit="return confirm('¿Eliminar {{ p.name }} definitivamente?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-danger btn-sm">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">No hay productos registrados todavía.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

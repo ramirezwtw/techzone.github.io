@@ -1,0 +1,10 @@
+{% macro status_badge(status) -%}
+{%- set cls = {
+  'Pendiente': 'status-pendiente',
+  'En revisión': 'status-revision',
+  'Recomendación lista': 'status-lista',
+  'Contactado': 'status-contactado',
+  'Finalizado': 'status-finalizado',
+}.get(status, 'status-pendiente') -%}
+<span class="status-badge {{ cls }}">{{ status }}</span>
+{%- endmacro %}

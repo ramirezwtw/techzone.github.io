@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ post.title }} — Comunidad TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        <a href="{{ url_for('community.index') }}" class="btn-secondary btn-sm">← Comunidad</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container container-narrow">
+      {% include "_flash.html" %}
+
+      <div class="com-card" style="margin-bottom:32px;">
+        <div class="com-card-header">
+          <div class="com-avatar"><span>{{ post.user.name[:2]|upper }}</span></div>
+          <div><div class="com-name">{{ post.user.name }}</div><div class="com-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</div></div>
+        </div>
+        <h1 class="com-card-title" style="font-size:22px;">{{ post.title }}</h1>
+        <p class="com-card-preview" style="-webkit-line-clamp:unset;white-space:pre-line;">{{ post.content }}</p>
+        <div class="com-card-meta">
+          <span>👁 {{ post.views }} vistas</span>
+          <span>💬 {{ comments|length }} respuestas</span>
+          <form method="post" action="{{ url_for('community.like', post_id=post.id) }}" style="display:inline-flex;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            {% if session.get('user_id') %}
+            <button type="submit" class="like-btn {{ 'like-btn-active' if liked else '' }}">❤️ {{ post.like_count }}</button>
+            {% else %}
+            <span>❤️ {{ post.like_count }}</span>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+
+      <h2 class="profile-section-title">Respuestas</h2>
+
+      {% for c in comments %}
+      <div class="profile-info-card" style="margin-bottom:12px;">
+        <div class="com-card-header" style="margin-bottom:8px;">
+          <div class="com-avatar"><span>{{ c.user.name[:2]|upper }}</span></div>
+          <div><div class="com-name">{{ c.user.name }}</div><div class="com-time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</div></div>
+        </div>
+        <p style="color:var(--text-secondary);font-size:14px;line-height:1.6;">{{ c.content }}</p>
+      </div>
+      {% else %}
+      <p class="form-hint" style="margin-bottom:20px;">Todavía no hay respuestas. ¡Sé el primero en comentar!</p>
+      {% endfor %}
+
+      {% if session.get('user_id') %}
+      <form method="post" action="{{ url_for('community.comentar', post_id=post.id) }}" class="form-group" style="margin-top:24px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <label class="form-label" for="content">Escribe una respuesta</label>
+        <textarea class="form-input" id="content" name="content" rows="3" required minlength="2"></textarea>
+        <button type="submit" class="btn-primary" style="margin-top:12px;">Comentar</button>
+      </form>
+      {% else %}
+      <p class="form-hint"><a href="{{ url_for('auth.login', next=url_for('community.detalle', post_id=post.id)) }}">Inicia sesión</a> para comentar.</p>
+      {% endif %}
+    </div>
+  </main>
+
+</body>
+</html>

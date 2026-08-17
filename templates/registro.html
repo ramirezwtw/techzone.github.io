@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crear Cuenta — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="auth-page">
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+    </nav>
+  </header>
+
+  <main class="auth-shell">
+    <div class="auth-card fade-up visible">
+      <div class="section-label">Únete ahora</div>
+      <h1 class="auth-title">Crea tu cuenta gratis</h1>
+      <p class="auth-desc">Regístrate en segundos y accede a recomendaciones de hardware personalizadas.</p>
+
+      {% include "_flash.html" %}
+
+      <form method="post" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <div class="form-group">
+          <label class="form-label" for="name">Nombre completo</label>
+          <input class="form-input" type="text" id="name" name="name" value="{{ name or '' }}" required autofocus />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Correo electrónico</label>
+          <input class="form-input" type="email" id="email" name="email" value="{{ email or '' }}" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña</label>
+          <input class="form-input" type="password" id="password" name="password" required minlength="8" />
+          <span class="form-hint">Mínimo 8 caracteres.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password_confirm">Confirmar contraseña</label>
+          <input class="form-input" type="password" id="password_confirm" name="password_confirm" required minlength="8" />
+        </div>
+
+        <button type="submit" class="btn-primary btn-lg auth-submit">Crear Cuenta Gratis</button>
+      </form>
+
+      <p class="auth-switch">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></p>
+      <p class="auth-switch"><a href="{{ url_for('main.index') }}">← Volver al inicio</a></p>
+    </div>
+  </main>
+
+</body>
+</html>

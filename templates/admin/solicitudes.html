@@ -1,0 +1,37 @@
+{% extends "admin/layout.html" %}
+{% from "_macros.html" import status_badge %}
+{% block title %}Solicitudes{% endblock %}
+{% block page_title %}Solicitudes de armado de PC{% endblock %}
+
+{% block content %}
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Correo</th>
+        <th>Presupuesto</th>
+        <th>Objetivo</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td>{{ r.user.name }}</td>
+        <td>{{ r.user.email }}</td>
+        <td>{{ r.budget }}</td>
+        <td>{{ r.purpose }}</td>
+        <td>{{ r.created_at.strftime('%Y-%m-%d') }}</td>
+        <td>{{ status_badge(r.status) }}</td>
+        <td><a href="{{ url_for('admin.solicitud_detalle', request_id=r.id) }}" class="btn-secondary btn-sm">Ver</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">No hay solicitudes registradas todavía.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page.title }} — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        <a href="{{ url_for('main.index') }}" class="btn-secondary btn-sm">← Volver al inicio</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container container-narrow">
+      <div class="section-label">Legal</div>
+      <h1 class="profile-title">{{ page.title }}</h1>
+      <div class="profile-info-card">
+        {% for paragraph in page.body %}
+        <p style="margin-bottom:16px;color:var(--text-secondary);line-height:1.7;">{{ paragraph }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

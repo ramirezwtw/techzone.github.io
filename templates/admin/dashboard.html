@@ -1,0 +1,39 @@
+{% extends "admin/layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-stat-grid">
+  <div class="admin-stat-card">
+    <span class="admin-stat-label">Usuarios registrados</span>
+    <span class="admin-stat-value">{{ total_users }}</span>
+  </div>
+  <div class="admin-stat-card">
+    <span class="admin-stat-label">Administradores</span>
+    <span class="admin-stat-value">{{ admins }}</span>
+  </div>
+  <div class="admin-stat-card">
+    <span class="admin-stat-label">Productos totales</span>
+    <span class="admin-stat-value">{{ total_products }}</span>
+  </div>
+  <div class="admin-stat-card">
+    <span class="admin-stat-label">Productos activos</span>
+    <span class="admin-stat-value">{{ active_products }}</span>
+  </div>
+  <div class="admin-stat-card admin-stat-warning">
+    <span class="admin-stat-label">Productos sin stock</span>
+    <span class="admin-stat-value">{{ out_of_stock }}</span>
+  </div>
+  <div class="admin-stat-card {{ 'admin-stat-warning' if pending_requests else '' }}">
+    <span class="admin-stat-label">Solicitudes pendientes</span>
+    <span class="admin-stat-value">{{ pending_requests }}</span>
+  </div>
+</div>
+
+<div class="admin-quick-links">
+  <a href="{{ url_for('admin.product_new') }}" class="btn-primary btn-lg">+ Nuevo producto</a>
+  <a href="{{ url_for('admin.products') }}" class="btn-secondary btn-lg">Gestionar productos</a>
+  <a href="{{ url_for('admin.users') }}" class="btn-secondary btn-lg">Gestionar usuarios</a>
+  <a href="{{ url_for('admin.solicitudes') }}" class="btn-secondary btn-lg">Ver solicitudes</a>
+</div>
+{% endblock %}

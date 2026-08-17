@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+{% from "_macros.html" import status_badge %}
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-secondary btn-sm">Panel Admin</a>
+        {% endif %}
+        <a href="{{ url_for('main.index') }}" class="btn-secondary btn-sm">Inicio</a>
+        <a href="{{ url_for('auth.logout') }}" class="btn-primary btn-sm">Cerrar sesión</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container">
+
+      {% include "_flash.html" %}
+
+      <div class="section-label">Mi cuenta</div>
+      <h1 class="profile-title">Hola, {{ user.name }}</h1>
+
+      <div class="profile-grid">
+        <div class="profile-info-card">
+          <h3 class="profile-card-title">Mi perfil</h3>
+          <div class="profile-info-row"><span>Nombre</span><strong>{{ user.name }}</strong></div>
+          <div class="profile-info-row"><span>Correo</span><strong>{{ user.email }}</strong></div>
+          <div class="profile-info-row"><span>Rol</span><strong>{{ 'Administrador' if user.role == 'admin' else 'Usuario' }}</strong></div>
+          <div class="profile-info-row"><span>Estado de la cuenta</span><strong>{{ 'Activa' if user.active else 'Inactiva' }}</strong></div>
+          <div class="profile-info-row"><span>Registrado desde</span><strong>{{ user.created_at.strftime('%Y-%m-%d') }}</strong></div>
+        </div>
+
+        <div class="profile-cta-card">
+          <div class="bh-icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 3l2.7 8.2H27l-7 5.1 2.7 8.2-7-5.1-7 5.1 2.7-8.2-7-5.1h8.3L16 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          <h3>¿No sabes qué PC comprar? Nosotros te ayudamos a armarla.</h3>
+          <p>Cuéntanos para qué necesitas tu computador, cuál es tu presupuesto y qué características buscas. Nuestro equipo analizará tu solicitud y te recomendará una configuración.</p>
+          <a href="{{ url_for('profile.armar_pc') }}" class="btn-primary btn-lg btn-glow">Ayúdame a armar mi PC</a>
+        </div>
+      </div>
+
+      <h2 class="profile-section-title">Mis solicitudes</h2>
+
+      {% if requests %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Objetivo</th>
+              <th>Presupuesto</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in requests %}
+            <tr>
+              <td>{{ r.created_at.strftime('%Y-%m-%d') }}</td>
+              <td>{{ r.purpose }}</td>
+              <td>{{ r.budget }}</td>
+              <td>{{ status_badge(r.status) }}</td>
+              <td><a href="{{ url_for('profile.solicitud_detalle', request_id=r.id) }}" class="btn-secondary btn-sm">
+                {{ 'Ver recomendación' if r.has_recommendation else 'Ver detalle' }}
+              </a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="profile-empty">
+        <p>Todavía no has enviado ninguna solicitud. Cuéntanos qué PC necesitas y te ayudamos a armarla.</p>
+        <a href="{{ url_for('profile.armar_pc') }}" class="btn-primary">Ayúdame a armar mi PC</a>
+      </div>
+      {% endif %}
+
+    </div>
+  </main>
+
+</body>
+</html>

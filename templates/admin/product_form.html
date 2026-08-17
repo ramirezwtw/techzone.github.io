@@ -1,0 +1,51 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ 'Nuevo producto' if mode == 'new' else 'Editar producto' }}{% endblock %}
+{% block page_title %}{{ 'Nuevo producto' if mode == 'new' else 'Editar producto' }}{% endblock %}
+
+{% block content %}
+<form method="post" class="admin-form" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+  <div class="form-group">
+    <label class="form-label" for="name">Nombre</label>
+    <input class="form-input" type="text" id="name" name="name" value="{{ product.name if product else '' }}" required />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="brand">Marca / categoría</label>
+    <input class="form-input" type="text" id="brand" name="brand" value="{{ product.brand if product else '' }}" required placeholder="AMD, Intel, NVIDIA, DDR5, NVMe..." />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="description">Descripción</label>
+    <textarea class="form-input" id="description" name="description" rows="3">{{ product.description if product else '' }}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="image_url">URL de la imagen</label>
+    <input class="form-input" type="text" id="image_url" name="image_url" value="{{ product.image_url if product else '' }}" placeholder="https://..." />
+  </div>
+
+  <div class="admin-form-row">
+    <div class="form-group">
+      <label class="form-label" for="price">Precio (USD)</label>
+      <input class="form-input" type="number" step="0.01" min="0" id="price" name="price" value="{{ product.price if product else '0' }}" required />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="stock">Stock</label>
+      <input class="form-input" type="number" step="1" min="0" id="stock" name="stock" value="{{ product.stock if product else '0' }}" required />
+    </div>
+  </div>
+
+  <div class="form-group form-check">
+    <input type="checkbox" id="active" name="active" {% if product is none or product.active %}checked{% endif %} />
+    <label for="active">Producto activo (visible en la página pública)</label>
+  </div>
+
+  <div class="admin-form-actions">
+    <button type="submit" class="btn-primary btn-lg">{{ 'Crear producto' if mode == 'new' else 'Guardar cambios' }}</button>
+    <a href="{{ url_for('admin.products') }}" class="btn-secondary btn-lg">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

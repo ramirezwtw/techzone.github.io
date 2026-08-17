@@ -1,0 +1,70 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ 'Nueva build' if mode == 'new' else 'Editar build' }}{% endblock %}
+{% block page_title %}{{ 'Nueva build' if mode == 'new' else 'Editar build' }}{% endblock %}
+
+{% block content %}
+<form method="post" class="admin-form" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+  <div class="admin-form-row">
+    <div class="form-group">
+      <label class="form-label" for="tier">Nivel (tier)</label>
+      <input class="form-input" type="text" id="tier" name="tier" value="{{ build.tier if build else '' }}" required placeholder="Inicial, Intermedio, Profesional..." />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="tier_emoji">Emoji del nivel</label>
+      <input class="form-input" type="text" id="tier_emoji" name="tier_emoji" value="{{ build.tier_emoji if build else '🎮' }}" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="name">Nombre de la build</label>
+    <input class="form-input" type="text" id="name" name="name" value="{{ build.name if build else '' }}" required />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="budget_label">Rango de presupuesto</label>
+    <input class="form-input" type="text" id="budget_label" name="budget_label" value="{{ build.budget_label if build else '' }}" required placeholder="$500 – $800 USD" />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="image_url">URL de la imagen</label>
+    <input class="form-input" type="text" id="image_url" name="image_url" value="{{ build.image_url if build else '' }}" />
+  </div>
+
+  <div class="admin-form-row">
+    <div class="form-group"><label class="form-label" for="cpu">Procesador</label><input class="form-input" type="text" id="cpu" name="cpu" value="{{ build.cpu if build else '' }}" /></div>
+    <div class="form-group"><label class="form-label" for="gpu">Tarjeta gráfica</label><input class="form-input" type="text" id="gpu" name="gpu" value="{{ build.gpu if build else '' }}" /></div>
+  </div>
+  <div class="admin-form-row">
+    <div class="form-group"><label class="form-label" for="ram">RAM</label><input class="form-input" type="text" id="ram" name="ram" value="{{ build.ram if build else '' }}" /></div>
+    <div class="form-group"><label class="form-label" for="storage">Almacenamiento</label><input class="form-input" type="text" id="storage" name="storage" value="{{ build.storage if build else '' }}" /></div>
+  </div>
+
+  <div class="admin-form-row">
+    <div class="form-group">
+      <label class="form-label" for="performance_note">Rendimiento esperado (texto)</label>
+      <input class="form-input" type="text" id="performance_note" name="performance_note" value="{{ build.performance_note if build else '' }}" placeholder="1080p / 60–100 fps en AAA" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="performance_pct">Barra de rendimiento (0-100)</label>
+      <input class="form-input" type="number" min="0" max="100" id="performance_pct" name="performance_pct" value="{{ build.performance_pct if build else 50 }}" />
+    </div>
+  </div>
+
+  <div class="form-group form-check">
+    <input type="checkbox" id="featured" name="featured" {% if build and build.featured %}checked{% endif %} />
+    <label for="featured">Destacar como "Más Popular"</label>
+  </div>
+
+  <div class="form-group form-check">
+    <input type="checkbox" id="active" name="active" {% if build is none or build.active %}checked{% endif %} />
+    <label for="active">Build activa (visible en la página pública)</label>
+  </div>
+
+  <div class="admin-form-actions">
+    <button type="submit" class="btn-primary btn-lg">{{ 'Crear build' if mode == 'new' else 'Guardar cambios' }}</button>
+    <a href="{{ url_for('admin.builds') }}" class="btn-secondary btn-lg">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

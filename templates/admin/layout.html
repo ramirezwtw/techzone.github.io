@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Panel Admin{% endblock %} — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="admin-page">
+
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a href="{{ url_for('main.index') }}" class="nav-logo admin-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone" class="logo-img" />
+      </a>
+
+      <nav class="admin-nav" aria-label="Navegación del panel">
+        <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.dashboard' else '' }}">Dashboard</a>
+        <a href="{{ url_for('admin.products') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.product') else '' }}">Productos</a>
+        <a href="{{ url_for('admin.builds') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.build') else '' }}">Builds</a>
+        <a href="{{ url_for('admin.users') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.user') else '' }}">Usuarios</a>
+        <a href="{{ url_for('admin.solicitudes') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.solicitud') else '' }}">Solicitudes</a>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <a href="{{ url_for('main.index') }}" class="footer-link-sm">← Ver sitio público</a>
+        <a href="{{ url_for('auth.logout') }}" class="footer-link-sm">Cerrar sesión</a>
+      </div>
+    </aside>
+
+    <main class="admin-content">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">{% block page_title %}{% endblock %}</h1>
+        <span class="admin-user">{{ session.get('name') }} · admin</span>
+      </div>
+
+      {% include "_flash.html" %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+</body>
+</html>

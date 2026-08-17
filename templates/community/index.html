@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comunidad — TechZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="{{ url_for('main.index') }}" class="nav-logo" aria-label="TechZone inicio">
+        <img src="{{ url_for('static', filename='img/logo-techzone.png') }}" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        <a href="{{ url_for('main.index') }}" class="btn-secondary btn-sm">← Inicio</a>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('community.nueva') }}" class="btn-primary btn-sm">+ Nueva publicación</a>
+        {% else %}
+        <a href="{{ url_for('auth.login', next=url_for('community.nueva')) }}" class="btn-primary btn-sm">Iniciar sesión para publicar</a>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container">
+      {% include "_flash.html" %}
+
+      <div class="section-label">Comunidad</div>
+      <h1 class="profile-title">Comunidad TechZone</h1>
+
+      <div class="comunidad-stats" style="margin-bottom:40px;">
+        <div class="com-stat-card">
+          <div class="com-stat-num">{{ stats.users }}</div>
+          <div class="com-stat-label">Usuarios registrados</div>
+        </div>
+        <div class="com-stat-card">
+          <div class="com-stat-num">{{ stats.posts }}</div>
+          <div class="com-stat-label">Publicaciones</div>
+        </div>
+        <div class="com-stat-card">
+          <div class="com-stat-num">{{ stats.comments }}</div>
+          <div class="com-stat-label">Comentarios</div>
+        </div>
+        <div class="com-stat-card">
+          <div class="com-stat-num">{{ stats.requests }}</div>
+          <div class="com-stat-label">Solicitudes de asesoría</div>
+        </div>
+      </div>
+
+      {% if posts %}
+      <div class="post-list">
+        {% for p in posts %}
+        <a href="{{ url_for('community.detalle', post_id=p.id) }}" class="com-card post-list-item">
+          <div class="com-card-header">
+            <div class="com-avatar"><span>{{ p.user.name[:2]|upper }}</span></div>
+            <div><div class="com-name">{{ p.user.name }}</div><div class="com-time">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</div></div>
+          </div>
+          <h4 class="com-card-title">{{ p.title }}</h4>
+          <p class="com-card-preview">{{ p.content[:180] }}{% if p.content|length > 180 %}...{% endif %}</p>
+          <div class="com-card-meta"><span>💬 {{ p.comment_count }} respuestas</span><span>👁 {{ p.views }} vistas</span><span>❤️ {{ p.like_count }} likes</span></div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="profile-empty">
+        <p>Todavía no hay publicaciones. Sé el primero en compartir tu build o preguntar algo a la comunidad.</p>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('community.nueva') }}" class="btn-primary">+ Nueva publicación</a>
+        {% else %}
+        <a href="{{ url_for('auth.login', next=url_for('community.nueva')) }}" class="btn-primary">Inicia sesión para publicar</a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+</body>
+</html>
