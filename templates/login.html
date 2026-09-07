@@ -38,6 +38,7 @@
         <div class="form-group">
           <label class="form-label" for="password">Contraseña</label>
           <input class="form-input" type="password" id="password" name="password" required minlength="8" />
+          <span class="form-hint"><a href="{{ url_for('auth.forgot_password') }}">¿Olvidaste tu contraseña?</a></span>
         </div>
 
         <button type="submit" class="btn-primary btn-lg auth-submit">Iniciar Sesión</button>

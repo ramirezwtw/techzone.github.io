@@ -2928,6 +2928,14 @@ body {
   margin-top: 6px;
 }
 
+.form-hint a {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.form-hint a:hover { color: var(--accent); }
+
 .form-check {
   display: flex;
   align-items: center;

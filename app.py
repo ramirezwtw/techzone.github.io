@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from sqlalchemy import inspect, text
 
 from admin import admin_bp
 from auth import auth_bp
@@ -13,6 +14,18 @@ from security import generate_csrf_token
 from seed_data import seed_admin_if_missing, seed_builds_if_empty, seed_products_if_empty
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+
+def _migrate_schema():
+    """Agrega columnas nuevas a tablas existentes (sqlite no soporta migraciones automáticas)."""
+    inspector = inspect(db.engine)
+    if "users" not in inspector.get_table_names():
+        return
+    columns = {col["name"] for col in inspector.get_columns("users")}
+    if "email_verified" not in columns:
+        db.session.execute(text("ALTER TABLE users ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT 0"))
+        db.session.execute(text("UPDATE users SET email_verified = 1 WHERE role = 'admin'"))
+        db.session.commit()
 
 
 def create_app():
@@ -35,6 +48,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        _migrate_schema()
         seed_products_if_empty()
         seed_builds_if_empty()
         seed_admin_if_missing(

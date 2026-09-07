@@ -42,7 +42,14 @@
           <div class="profile-info-row"><span>Correo</span><strong>{{ user.email }}</strong></div>
           <div class="profile-info-row"><span>Rol</span><strong>{{ 'Administrador' if user.role == 'admin' else 'Usuario' }}</strong></div>
           <div class="profile-info-row"><span>Estado de la cuenta</span><strong>{{ 'Activa' if user.active else 'Inactiva' }}</strong></div>
+          <div class="profile-info-row"><span>Correo verificado</span><strong>{{ 'Sí' if user.email_verified else 'No' }}</strong></div>
           <div class="profile-info-row"><span>Registrado desde</span><strong>{{ user.created_at.strftime('%Y-%m-%d') }}</strong></div>
+          {% if not user.email_verified %}
+          <form method="post" action="{{ url_for('auth.reenviar_verificacion') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-secondary btn-sm" style="margin-top: 10px;">Reenviar correo de verificación</button>
+          </form>
+          {% endif %}
         </div>
 
         <div class="profile-cta-card">

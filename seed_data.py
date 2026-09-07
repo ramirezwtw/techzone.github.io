@@ -144,7 +144,7 @@ def seed_builds_if_empty():
 
 def seed_admin_if_missing(email, password, name="Administrador"):
     if User.query.filter_by(email=email).first() is None:
-        admin = User(name=name, email=email, role="admin", active=True)
+        admin = User(name=name, email=email, role="admin", active=True, email_verified=True)
         admin.set_password(password)
         db.session.add(admin)
         db.session.commit()

@@ -1,4 +1,5 @@
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -14,6 +15,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="user")  # 'user' | 'admin'
     active = db.Column(db.Boolean, nullable=False, default=True)
+    email_verified = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def set_password(self, raw_password):
@@ -21,6 +23,47 @@ class User(db.Model):
 
     def check_password(self, raw_password):
         return check_password_hash(self.password_hash, raw_password)
+
+
+class AuthToken(db.Model):
+    """Token de un solo uso para verificación de correo o recuperación de contraseña."""
+
+    __tablename__ = "auth_tokens"
+
+    PURPOSE_VERIFY = "verify"
+    PURPOSE_RESET = "reset"
+    TTL_HOURS = {PURPOSE_VERIFY: 24, PURPOSE_RESET: 1}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    token = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    purpose = db.Column(db.String(20), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    used_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    user = db.relationship("User")
+
+    @classmethod
+    def issue(cls, user, purpose):
+        # Invalida cualquier token anterior sin usar del mismo tipo para este usuario.
+        cls.query.filter_by(user_id=user.id, purpose=purpose, used_at=None).delete()
+
+        instance = cls(
+            user_id=user.id,
+            token=secrets.token_urlsafe(32),
+            purpose=purpose,
+            expires_at=datetime.utcnow() + timedelta(hours=cls.TTL_HOURS[purpose]),
+        )
+        db.session.add(instance)
+        return instance
+
+    @property
+    def is_valid(self):
+        return self.used_at is None and self.expires_at > datetime.utcnow()
+
+    def mark_used(self):
+        self.used_at = datetime.utcnow()
 
 
 class Product(db.Model):
