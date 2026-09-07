@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask
-from sqlalchemy import inspect
 
 from admin import admin_bp
 from auth import auth_bp
@@ -15,11 +14,26 @@ from seed_data import seed_admin_if_missing, seed_builds_if_empty, seed_products
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# Vercel inyecta esta variable de entorno automáticamente en toda Serverless
+# Function (build, preview y producción). Nos sirve para detectar "estamos
+# corriendo en Vercel" sin depender de si DATABASE_URL está o no definida.
+ON_VERCEL = bool(os.environ.get("VERCEL"))
+
 
 def _build_database_uri():
-    """Postgres en producción (Vercel) vía DATABASE_URL; SQLite local si no está definida."""
+    """PostgreSQL obligatorio en Vercel vía DATABASE_URL; SQLite solo en desarrollo local."""
     database_url = os.environ.get("DATABASE_URL")
+
     if not database_url:
+        if ON_VERCEL:
+            # No hay filesystem persistente en Vercel: abrir un archivo SQLite
+            # ahí falla con "unable to open database file". En vez de dejar
+            # que ese error confuso ocurra más adelante, fallamos aquí mismo
+            # con un mensaje claro de qué falta configurar.
+            raise RuntimeError(
+                "DATABASE_URL es obligatoria en Vercel: configúrala como variable de entorno "
+                "de PostgreSQL en el proyecto de Vercel (Production/Preview) y vuelve a desplegar."
+            )
         return "sqlite:///" + os.path.join(BASE_DIR, "database.db")
 
     # Algunos proveedores (Heroku, Render, ...) entregan "postgres://", pero
@@ -71,21 +85,29 @@ def create_app():
     app.jinja_env.globals["csrf_token"] = generate_csrf_token
     app.jinja_env.filters["split_csv"] = lambda value: [v for v in (value or "").split(",") if v]
 
-    # Las tablas se crean/actualizan con migraciones (`flask db upgrade`), no
-    # en el arranque de la app: en Vercel cada invocación de la función
-    # serverless volvería a intentarlo y no es un filesystem donde crear
-    # bases de datos. El seed solo corre si las migraciones ya se aplicaron
-    # (si no, importar la app -p. ej. para "flask db migrate"- no debe fallar).
-    with app.app_context():
-        if inspect(db.engine).has_table("users"):
+    # Sin consultas a la base de datos aquí: create_app() se ejecuta en cada
+    # cold start de la Serverless Function de Vercel, y ahí no hay conexión
+    # garantizada ni es el lugar para crear/inspeccionar tablas. El esquema
+    # se gestiona con Alembic/Flask-Migrate (`flask db upgrade`) y los datos
+    # iniciales con el comando `flask seed-db` (ver más abajo), ambos
+    # ejecutados explícitamente por un humano, nunca en cada invocación.
+    register_cli(app)
+
+    return app
+
+
+def register_cli(app):
+    @app.cli.command("seed-db")
+    def seed_db():
+        """Crea el admin y los datos iniciales. Ejecutar a mano una vez por entorno."""
+        with app.app_context():
             seed_products_if_empty()
             seed_builds_if_empty()
             seed_admin_if_missing(
                 email=os.environ.get("ADMIN_EMAIL", "admin@techzone.app"),
                 password=os.environ.get("ADMIN_PASSWORD", "TechZone2026!"),
             )
-
-    return app
+        print("Seed completado.")
 
 
 app = create_app()
