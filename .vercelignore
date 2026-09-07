@@ -1,0 +1,6 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+database.db
+_scratch_migration.db

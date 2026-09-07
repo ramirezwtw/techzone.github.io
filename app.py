@@ -1,13 +1,13 @@
 import os
 
 from flask import Flask
-from sqlalchemy import inspect, text
+from sqlalchemy import inspect
 
 from admin import admin_bp
 from auth import auth_bp
 from builds import builds_bp
 from community import community_bp
-from extensions import db
+from extensions import db, migrate
 from main import main_bp
 from profile import profile_bp
 from security import generate_csrf_token
@@ -16,25 +16,50 @@ from seed_data import seed_admin_if_missing, seed_builds_if_empty, seed_products
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
-def _migrate_schema():
-    """Agrega columnas nuevas a tablas existentes (sqlite no soporta migraciones automáticas)."""
-    inspector = inspect(db.engine)
-    if "users" not in inspector.get_table_names():
-        return
-    columns = {col["name"] for col in inspector.get_columns("users")}
-    if "email_verified" not in columns:
-        db.session.execute(text("ALTER TABLE users ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT 0"))
-        db.session.execute(text("UPDATE users SET email_verified = 1 WHERE role = 'admin'"))
-        db.session.commit()
+def _build_database_uri():
+    """Postgres en producción (Vercel) vía DATABASE_URL; SQLite local si no está definida."""
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        return "sqlite:///" + os.path.join(BASE_DIR, "database.db")
+
+    # Algunos proveedores (Heroku, Render, ...) entregan "postgres://", pero
+    # SQLAlchemy 1.4+ requiere el esquema "postgresql://". Forzamos además el
+    # driver psycopg2, que es el que se instala en requirements.txt.
+    if database_url.startswith("postgres://"):
+        database_url = "postgresql://" + database_url[len("postgres://"):]
+    if database_url.startswith("postgresql://"):
+        database_url = "postgresql+psycopg2://" + database_url[len("postgresql://"):]
+
+    return database_url
+
+
+def _build_engine_options(database_uri):
+    if database_uri.startswith("sqlite://"):
+        return {}
+
+    # Entorno serverless (Vercel): cada invocación puede ejecutarse en un
+    # proceso/contenedor distinto, así que no conviene mantener un pool de
+    # conexiones persistente. pool_pre_ping evita usar conexiones muertas y
+    # un pool pequeño limita las conexiones simultáneas hacia Postgres.
+    return {
+        "pool_pre_ping": True,
+        "pool_size": 1,
+        "max_overflow": 2,
+        "pool_recycle": 280,
+    }
 
 
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "database.db")
+
+    database_uri = _build_database_uri()
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = _build_engine_options(database_uri)
 
     db.init_app(app)
+    migrate.init_app(app, db)
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -46,15 +71,19 @@ def create_app():
     app.jinja_env.globals["csrf_token"] = generate_csrf_token
     app.jinja_env.filters["split_csv"] = lambda value: [v for v in (value or "").split(",") if v]
 
+    # Las tablas se crean/actualizan con migraciones (`flask db upgrade`), no
+    # en el arranque de la app: en Vercel cada invocación de la función
+    # serverless volvería a intentarlo y no es un filesystem donde crear
+    # bases de datos. El seed solo corre si las migraciones ya se aplicaron
+    # (si no, importar la app -p. ej. para "flask db migrate"- no debe fallar).
     with app.app_context():
-        db.create_all()
-        _migrate_schema()
-        seed_products_if_empty()
-        seed_builds_if_empty()
-        seed_admin_if_missing(
-            email=os.environ.get("ADMIN_EMAIL", "admin@techzone.app"),
-            password=os.environ.get("ADMIN_PASSWORD", "TechZone2026!"),
-        )
+        if inspect(db.engine).has_table("users"):
+            seed_products_if_empty()
+            seed_builds_if_empty()
+            seed_admin_if_missing(
+                email=os.environ.get("ADMIN_EMAIL", "admin@techzone.app"),
+                password=os.environ.get("ADMIN_PASSWORD", "TechZone2026!"),
+            )
 
     return app
 
