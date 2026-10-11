@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 database.db
 _scratch_migration.db
+tests/
+pytest.ini
+requirements-dev.txt
+.pytest_cache/
