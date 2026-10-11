@@ -1,197 +1,267 @@
 import re
+from typing import Optional
 
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from fastapi import APIRouter, Depends, Form, Query, Request
+from fastapi.responses import HTMLResponse
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from extensions import db
+from database import get_db
 from mailer import send_password_reset_email, send_verification_email
 from models import AuthToken, User
-from security import validate_csrf
+from security import login_session, validate_csrf
+from templating import (
+    back_or,
+    external_url_for,
+    flash,
+    redirect,
+    redirect_to,
+    render,
+)
 
-auth_bp = Blueprint("auth", __name__)
+router = APIRouter(default_response_class=HTMLResponse)
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
-def _issue_and_send_verification(user):
-    token = AuthToken.issue(user, AuthToken.PURPOSE_VERIFY)
-    db.session.commit()
-    url = url_for("auth.verify_email", token=token.token, _external=True)
+def _issue_and_send_verification(request: Request, db: Session, user: User) -> None:
+    token = AuthToken.issue(db, user, AuthToken.PURPOSE_VERIFY)
+    db.commit()
+    url = external_url_for(request, "auth.verify_email", token=token.token)
     send_verification_email(user, url)
 
 
-@auth_bp.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        if not validate_csrf(request.form.get("csrf_token")):
-            flash("Tu sesión expiró, intenta de nuevo.", "error")
-            return redirect(url_for("auth.login"))
-
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-
-        user = User.query.filter_by(email=email).first()
-        if user is None or not user.check_password(password):
-            flash("Correo o contraseña incorrectos.", "error")
-            return render_template("login.html", email=email), 401
-
-        if not user.active:
-            flash("Tu cuenta está desactivada. Contacta a un administrador.", "error")
-            return render_template("login.html", email=email), 403
-
-        session.clear()
-        session["user_id"] = user.id
-        session["name"] = user.name
-        session["role"] = user.role
-        flash(f"Bienvenido de nuevo, {user.name}.", "success")
-
-        next_url = request.args.get("next")
-        if user.role == "admin":
-            return redirect(next_url or url_for("admin.dashboard"))
-        return redirect(next_url or url_for("main.index"))
-
-    return render_template("login.html")
+def _safe_next(next_url: Optional[str]) -> Optional[str]:
+    """Solo se acepta una ruta interna, para no convertir ?next= en un redirect abierto."""
+    if next_url and next_url.startswith("/") and not next_url.startswith("//"):
+        return next_url
+    return None
 
 
-@auth_bp.route("/registro", methods=["GET", "POST"])
-def registro():
-    if request.method == "POST":
-        if not validate_csrf(request.form.get("csrf_token")):
-            flash("Tu sesión expiró, intenta de nuevo.", "error")
-            return redirect(url_for("auth.registro"))
-
-        name = request.form.get("name", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-        password_confirm = request.form.get("password_confirm", "")
-
-        errors = []
-        if len(name) < 2:
-            errors.append("Ingresa tu nombre completo.")
-        if not EMAIL_RE.match(email):
-            errors.append("Ingresa un correo electrónico válido.")
-        if len(password) < 8:
-            errors.append("La contraseña debe tener al menos 8 caracteres.")
-        if password != password_confirm:
-            errors.append("Las contraseñas no coinciden.")
-        if not errors and User.query.filter_by(email=email).first() is not None:
-            errors.append("Ya existe una cuenta registrada con ese correo.")
-
-        if errors:
-            for error in errors:
-                flash(error, "error")
-            return render_template("registro.html", name=name, email=email), 400
-
-        user = User(name=name, email=email, role="user", active=True)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.flush()
-        _issue_and_send_verification(user)
-
-        session.clear()
-        session["user_id"] = user.id
-        session["name"] = user.name
-        session["role"] = user.role
-        flash("Cuenta creada correctamente. Te enviamos un correo para verificar tu cuenta.", "success")
-        return redirect(url_for("main.index"))
-
-    return render_template("registro.html")
+def _get_user_by_email(db: Session, email: str) -> Optional[User]:
+    return db.scalars(select(User).where(User.email == email)).first()
 
 
-@auth_bp.route("/logout")
-def logout():
-    session.clear()
-    flash("Sesión cerrada correctamente.", "success")
-    return redirect(url_for("main.index"))
+@router.get("/login", name="auth.login")
+def login_form(request: Request):
+    return render(request, "login.html")
 
 
-@auth_bp.route("/verify-email/<token>")
-def verify_email(token):
-    auth_token = AuthToken.query.filter_by(token=token, purpose=AuthToken.PURPOSE_VERIFY).first()
+@router.post("/login", name="auth.login")
+def login(
+    request: Request,
+    email: str = Form(""),
+    password: str = Form(""),
+    csrf_token: str = Form(""),
+    next_url: Optional[str] = Query(None, alias="next"),
+    db: Session = Depends(get_db),
+):
+    if not validate_csrf(request, csrf_token):
+        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        return redirect(request, "auth.login")
+
+    email = email.strip().lower()
+
+    user = _get_user_by_email(db, email)
+    if user is None or not user.check_password(password):
+        flash(request, "Correo o contraseña incorrectos.", "error")
+        return render(request, "login.html", {"email": email}, status_code=401)
+
+    if not user.active:
+        flash(request, "Tu cuenta está desactivada. Contacta a un administrador.", "error")
+        return render(request, "login.html", {"email": email}, status_code=403)
+
+    login_session(request, user)
+    flash(request, f"Bienvenido de nuevo, {user.name}.", "success")
+
+    destination = _safe_next(next_url)
+    if destination:
+        return redirect_to(destination)
+    if user.role == "admin":
+        return redirect(request, "admin.dashboard")
+    return redirect(request, "main.index")
+
+
+@router.get("/registro", name="auth.registro")
+def registro_form(request: Request):
+    return render(request, "registro.html")
+
+
+@router.post("/registro", name="auth.registro")
+def registro(
+    request: Request,
+    name: str = Form(""),
+    email: str = Form(""),
+    password: str = Form(""),
+    password_confirm: str = Form(""),
+    csrf_token: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not validate_csrf(request, csrf_token):
+        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        return redirect(request, "auth.registro")
+
+    name = name.strip()
+    email = email.strip().lower()
+
+    errors = []
+    if len(name) < 2:
+        errors.append("Ingresa tu nombre completo.")
+    if not EMAIL_RE.match(email):
+        errors.append("Ingresa un correo electrónico válido.")
+    if len(password) < 8:
+        errors.append("La contraseña debe tener al menos 8 caracteres.")
+    if password != password_confirm:
+        errors.append("Las contraseñas no coinciden.")
+    if not errors and _get_user_by_email(db, email) is not None:
+        errors.append("Ya existe una cuenta registrada con ese correo.")
+
+    if errors:
+        for error in errors:
+            flash(request, error, "error")
+        return render(
+            request, "registro.html", {"name": name, "email": email}, status_code=400
+        )
+
+    user = User(name=name, email=email, role="user", active=True)
+    user.set_password(password)
+    db.add(user)
+    db.flush()
+    _issue_and_send_verification(request, db, user)
+
+    login_session(request, user)
+    flash(
+        request,
+        "Cuenta creada correctamente. Te enviamos un correo para verificar tu cuenta.",
+        "success",
+    )
+    return redirect(request, "main.index")
+
+
+@router.get("/logout", name="auth.logout")
+def logout(request: Request):
+    request.session.clear()
+    flash(request, "Sesión cerrada correctamente.", "success")
+    return redirect(request, "main.index")
+
+
+@router.get("/verify-email/{token}", name="auth.verify_email")
+def verify_email(request: Request, token: str, db: Session = Depends(get_db)):
+    auth_token = AuthToken.find(db, token, AuthToken.PURPOSE_VERIFY)
 
     if auth_token is None or not auth_token.is_valid:
-        flash("El enlace de verificación no es válido o ya venció.", "error")
-        return redirect(url_for("auth.login"))
+        flash(request, "El enlace de verificación no es válido o ya venció.", "error")
+        return redirect(request, "auth.login")
 
     auth_token.user.email_verified = True
     auth_token.mark_used()
-    db.session.commit()
-    flash("Tu cuenta quedó verificada correctamente.", "success")
-    return redirect(url_for("main.index"))
+    db.commit()
+    flash(request, "Tu cuenta quedó verificada correctamente.", "success")
+    return redirect(request, "main.index")
 
 
-@auth_bp.route("/reenviar-verificacion", methods=["POST"])
-def reenviar_verificacion():
-    if not validate_csrf(request.form.get("csrf_token")):
-        flash("Tu sesión expiró, intenta de nuevo.", "error")
-        return redirect(request.referrer or url_for("main.index"))
+@router.post("/reenviar-verificacion", name="auth.reenviar_verificacion")
+def reenviar_verificacion(
+    request: Request,
+    csrf_token: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not validate_csrf(request, csrf_token):
+        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        return back_or(request, "main.index")
 
-    user = User.query.get(session.get("user_id"))
+    user = db.get(User, request.session.get("user_id")) if request.session.get("user_id") else None
     if user is None:
-        flash("Debes iniciar sesión para continuar.", "error")
-        return redirect(url_for("auth.login"))
+        flash(request, "Debes iniciar sesión para continuar.", "error")
+        return redirect(request, "auth.login")
 
     if user.email_verified:
-        flash("Tu cuenta ya está verificada.", "success")
+        flash(request, "Tu cuenta ya está verificada.", "success")
     else:
-        _issue_and_send_verification(user)
-        flash("Te enviamos un nuevo correo de verificación.", "success")
+        _issue_and_send_verification(request, db, user)
+        flash(request, "Te enviamos un nuevo correo de verificación.", "success")
 
-    return redirect(request.referrer or url_for("main.index"))
-
-
-@auth_bp.route("/olvide-contrasena", methods=["GET", "POST"])
-def forgot_password():
-    if request.method == "POST":
-        if not validate_csrf(request.form.get("csrf_token")):
-            flash("Tu sesión expiró, intenta de nuevo.", "error")
-            return redirect(url_for("auth.forgot_password"))
-
-        email = request.form.get("email", "").strip().lower()
-        user = User.query.filter_by(email=email).first()
-        if user is not None and user.active:
-            token = AuthToken.issue(user, AuthToken.PURPOSE_RESET)
-            db.session.commit()
-            url = url_for("auth.reset_password", token=token.token, _external=True)
-            send_password_reset_email(user, url)
-
-        # Mensaje genérico: no revela si el correo existe o no en el sistema.
-        flash("Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.", "success")
-        return redirect(url_for("auth.login"))
-
-    return render_template("forgot_password.html")
+    return back_or(request, "main.index")
 
 
-@auth_bp.route("/restablecer-contrasena/<token>", methods=["GET", "POST"])
-def reset_password(token):
-    auth_token = AuthToken.query.filter_by(token=token, purpose=AuthToken.PURPOSE_RESET).first()
+@router.get("/olvide-contrasena", name="auth.forgot_password")
+def forgot_password_form(request: Request):
+    return render(request, "forgot_password.html")
+
+
+@router.post("/olvide-contrasena", name="auth.forgot_password")
+def forgot_password(
+    request: Request,
+    email: str = Form(""),
+    csrf_token: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not validate_csrf(request, csrf_token):
+        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        return redirect(request, "auth.forgot_password")
+
+    user = _get_user_by_email(db, email.strip().lower())
+    if user is not None and user.active:
+        token = AuthToken.issue(db, user, AuthToken.PURPOSE_RESET)
+        db.commit()
+        url = external_url_for(request, "auth.reset_password", token=token.token)
+        send_password_reset_email(user, url)
+
+    # Mensaje genérico: no revela si el correo existe o no en el sistema.
+    flash(
+        request,
+        "Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.",
+        "success",
+    )
+    return redirect(request, "auth.login")
+
+
+@router.get("/restablecer-contrasena/{token}", name="auth.reset_password")
+def reset_password_form(request: Request, token: str, db: Session = Depends(get_db)):
+    auth_token = AuthToken.find(db, token, AuthToken.PURPOSE_RESET)
+    if auth_token is None or not auth_token.is_valid:
+        flash(request, "El enlace de recuperación no es válido o ya venció.", "error")
+        return redirect(request, "auth.forgot_password")
+
+    return render(request, "reset_password.html", {"token": token})
+
+
+@router.post("/restablecer-contrasena/{token}", name="auth.reset_password")
+def reset_password(
+    request: Request,
+    token: str,
+    password: str = Form(""),
+    password_confirm: str = Form(""),
+    csrf_token: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    auth_token = AuthToken.find(db, token, AuthToken.PURPOSE_RESET)
 
     if auth_token is None or not auth_token.is_valid:
-        flash("El enlace de recuperación no es válido o ya venció.", "error")
-        return redirect(url_for("auth.forgot_password"))
+        flash(request, "El enlace de recuperación no es válido o ya venció.", "error")
+        return redirect(request, "auth.forgot_password")
 
-    if request.method == "POST":
-        if not validate_csrf(request.form.get("csrf_token")):
-            flash("Tu sesión expiró, intenta de nuevo.", "error")
-            return redirect(url_for("auth.reset_password", token=token))
+    if not validate_csrf(request, csrf_token):
+        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        return redirect(request, "auth.reset_password", token=token)
 
-        password = request.form.get("password", "")
-        password_confirm = request.form.get("password_confirm", "")
+    errors = []
+    if len(password) < 8:
+        errors.append("La contraseña debe tener al menos 8 caracteres.")
+    if password != password_confirm:
+        errors.append("Las contraseñas no coinciden.")
 
-        errors = []
-        if len(password) < 8:
-            errors.append("La contraseña debe tener al menos 8 caracteres.")
-        if password != password_confirm:
-            errors.append("Las contraseñas no coinciden.")
+    if errors:
+        for error in errors:
+            flash(request, error, "error")
+        return render(request, "reset_password.html", {"token": token}, status_code=400)
 
-        if errors:
-            for error in errors:
-                flash(error, "error")
-            return render_template("reset_password.html", token=token), 400
-
-        auth_token.user.set_password(password)
-        auth_token.mark_used()
-        db.session.commit()
-        flash("Tu contraseña se actualizó correctamente. Ya puedes iniciar sesión.", "success")
-        return redirect(url_for("auth.login"))
-
-    return render_template("reset_password.html", token=token)
+    auth_token.user.set_password(password)
+    auth_token.mark_used()
+    db.commit()
+    flash(
+        request,
+        "Tu contraseña se actualizó correctamente. Ya puedes iniciar sesión.",
+        "success",
+    )
+    return redirect(request, "auth.login")

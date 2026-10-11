@@ -1,31 +1,63 @@
-import secrets
-from datetime import datetime, timedelta
+"""Modelos SQLAlchemy 2.0 (estilo declarativo tipado).
 
+El esquema es exactamente el mismo que tenía la versión Flask-SQLAlchemy:
+mismos nombres de tabla y de columna, así que la base de datos existente
+(PostgreSQL o el SQLite local) sigue sirviendo sin migraciones nuevas.
+"""
+
+import secrets
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from typing import Optional
+
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+    delete,
+    select,
+)
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from extensions import db
+from database import Base
 
 
-class User(db.Model):
+def utcnow():
+    """UTC sin tzinfo: las columnas son DateTime naive, como en la versión Flask."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+class User(Base):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(180), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="user")  # 'user' | 'admin'
-    active = db.Column(db.Boolean, nullable=False, default=True)
-    email_verified = db.Column(db.Boolean, nullable=False, default=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    email: Mapped[str] = mapped_column(String(180), unique=True, nullable=False, index=True)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="user")  # 'user' | 'admin'
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    email_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
-    def set_password(self, raw_password):
+    build_requests: Mapped[list["BuildRequest"]] = relationship(
+        back_populates="user", order_by="BuildRequest.created_at.desc()"
+    )
+    posts: Mapped[list["Post"]] = relationship(back_populates="user")
+
+    def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)
 
-    def check_password(self, raw_password):
+    def check_password(self, raw_password: str) -> bool:
         return check_password_hash(self.password_hash, raw_password)
 
 
-class AuthToken(db.Model):
+class AuthToken(Base):
     """Token de un solo uso para verificación de correo o recuperación de contraseña."""
 
     __tablename__ = "auth_tokens"
@@ -34,185 +66,203 @@ class AuthToken(db.Model):
     PURPOSE_RESET = "reset"
     TTL_HOURS = {PURPOSE_VERIFY: 24, PURPOSE_RESET: 1}
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
-    token = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    purpose = db.Column(db.String(20), nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    used_at = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    token: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    purpose: Mapped[str] = mapped_column(String(20), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    used_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
-    user = db.relationship("User")
+    user: Mapped["User"] = relationship()
 
     @classmethod
-    def issue(cls, user, purpose):
+    def issue(cls, db: Session, user: "User", purpose: str) -> "AuthToken":
         # Invalida cualquier token anterior sin usar del mismo tipo para este usuario.
-        cls.query.filter_by(user_id=user.id, purpose=purpose, used_at=None).delete()
+        db.execute(
+            delete(cls).where(
+                cls.user_id == user.id,
+                cls.purpose == purpose,
+                cls.used_at.is_(None),
+            )
+        )
 
         instance = cls(
             user_id=user.id,
             token=secrets.token_urlsafe(32),
             purpose=purpose,
-            expires_at=datetime.utcnow() + timedelta(hours=cls.TTL_HOURS[purpose]),
+            expires_at=utcnow() + timedelta(hours=cls.TTL_HOURS[purpose]),
         )
-        db.session.add(instance)
+        db.add(instance)
         return instance
 
+    @classmethod
+    def find(cls, db: Session, token: str, purpose: str) -> Optional["AuthToken"]:
+        return db.scalars(select(cls).where(cls.token == token, cls.purpose == purpose)).first()
+
     @property
-    def is_valid(self):
-        return self.used_at is None and self.expires_at > datetime.utcnow()
+    def is_valid(self) -> bool:
+        return self.used_at is None and self.expires_at > utcnow()
 
-    def mark_used(self):
-        self.used_at = datetime.utcnow()
+    def mark_used(self) -> None:
+        self.used_at = utcnow()
 
 
-class Product(db.Model):
+class Product(Base):
     __tablename__ = "products"
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    brand = db.Column(db.String(60), nullable=False)
-    description = db.Column(db.Text, nullable=False, default="")
-    image_url = db.Column(db.String(500), nullable=False, default="")
-    price = db.Column(db.Numeric(10, 2), nullable=False, default=0)
-    stock = db.Column(db.Integer, nullable=False, default=0)
-    active = db.Column(db.Boolean, nullable=False, default=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    brand: Mapped[str] = mapped_column(String(60), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    image_url: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=0)
+    stock: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
 
-class BuildRequest(db.Model):
+class BuildRequest(Base):
     """Solicitud de asesoría 'Ayúdame a armar mi PC' enviada por un usuario."""
 
     __tablename__ = "build_requests"
 
     STATUSES = ["Pendiente", "En revisión", "Recomendación lista", "Contactado", "Finalizado"]
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
 
     # ── Uso y presupuesto ──────────────────────────────────
-    purpose = db.Column(db.String(300), nullable=False, default="")  # CSV: Gaming,Trabajo,...
-    purpose_other = db.Column(db.String(200), nullable=False, default="")
-    budget = db.Column(db.String(120), nullable=False, default="")
+    purpose: Mapped[str] = mapped_column(String(300), nullable=False, default="")  # CSV: Gaming,Trabajo
+    purpose_other: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    budget: Mapped[str] = mapped_column(String(120), nullable=False, default="")
 
     # ── Juegos / programas ─────────────────────────────────
-    games = db.Column(db.Text, nullable=False, default="")
-    programs = db.Column(db.Text, nullable=False, default="")
+    games: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    programs: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
     # ── Componentes actuales ───────────────────────────────
-    has_components = db.Column(db.Boolean, nullable=False, default=False)
-    current_cpu = db.Column(db.String(150), nullable=False, default="")
-    current_gpu = db.Column(db.String(150), nullable=False, default="")
-    current_ram = db.Column(db.String(150), nullable=False, default="")
-    current_storage = db.Column(db.String(150), nullable=False, default="")
-    current_psu = db.Column(db.String(150), nullable=False, default="")
-    current_motherboard = db.Column(db.String(150), nullable=False, default="")
-    current_case = db.Column(db.String(150), nullable=False, default="")
-    current_monitor = db.Column(db.String(150), nullable=False, default="")
-    current_other = db.Column(db.String(200), nullable=False, default="")
+    has_components: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    current_cpu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_gpu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_ram: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_storage: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_psu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_motherboard: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_case: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_monitor: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    current_other: Mapped[str] = mapped_column(String(200), nullable=False, default="")
 
     # ── Preferencias ────────────────────────────────────────
-    pref_cpu_brand = db.Column(db.String(30), nullable=False, default="Sin preferencia")
-    pref_gpu_brand = db.Column(db.String(30), nullable=False, default="Sin preferencia")
-    pref_aesthetics = db.Column(db.String(30), nullable=False, default="Me es indiferente")
-    pref_color = db.Column(db.String(30), nullable=False, default="Me es indiferente")
-    pref_color_other = db.Column(db.String(60), nullable=False, default="")
-    pref_size = db.Column(db.String(30), nullable=False, default="Me es indiferente")
+    pref_cpu_brand: Mapped[str] = mapped_column(String(30), nullable=False, default="Sin preferencia")
+    pref_gpu_brand: Mapped[str] = mapped_column(String(30), nullable=False, default="Sin preferencia")
+    pref_aesthetics: Mapped[str] = mapped_column(String(30), nullable=False, default="Me es indiferente")
+    pref_color: Mapped[str] = mapped_column(String(30), nullable=False, default="Me es indiferente")
+    pref_color_other: Mapped[str] = mapped_column(String(60), nullable=False, default="")
+    pref_size: Mapped[str] = mapped_column(String(30), nullable=False, default="Me es indiferente")
 
     # ── Periféricos y descripción libre ────────────────────
-    peripherals = db.Column(db.String(200), nullable=False, default="")  # CSV
-    description = db.Column(db.Text, nullable=False, default="")
+    peripherals: Mapped[str] = mapped_column(String(200), nullable=False, default="")  # CSV
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
-    status = db.Column(db.String(30), nullable=False, default="Pendiente")
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="Pendiente")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
     # ── Recomendación del administrador ────────────────────
-    rec_cpu = db.Column(db.String(150), nullable=False, default="")
-    rec_gpu = db.Column(db.String(150), nullable=False, default="")
-    rec_motherboard = db.Column(db.String(150), nullable=False, default="")
-    rec_ram = db.Column(db.String(150), nullable=False, default="")
-    rec_storage = db.Column(db.String(150), nullable=False, default="")
-    rec_psu = db.Column(db.String(150), nullable=False, default="")
-    rec_case = db.Column(db.String(150), nullable=False, default="")
-    rec_cooling = db.Column(db.String(150), nullable=False, default="")
-    rec_monitor = db.Column(db.String(150), nullable=False, default="")
-    rec_other = db.Column(db.String(200), nullable=False, default="")
-    rec_price_estimate = db.Column(db.Numeric(10, 2))
-    rec_explanation = db.Column(db.Text, nullable=False, default="")
-    rec_created_at = db.Column(db.DateTime)
+    rec_cpu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_gpu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_motherboard: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_ram: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_storage: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_psu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_case: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_cooling: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_monitor: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    rec_other: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    rec_price_estimate: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2))
+    rec_explanation: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    rec_created_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
-    user = db.relationship("User", backref=db.backref("build_requests", lazy="dynamic"))
+    user: Mapped["User"] = relationship(back_populates="build_requests")
 
     @property
-    def has_recommendation(self):
+    def has_recommendation(self) -> bool:
         return self.rec_created_at is not None
 
 
-class Post(db.Model):
+class Post(Base):
     """Publicación del foro de la Comunidad."""
 
     __tablename__ = "posts"
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    views = db.Column(db.Integer, nullable=False, default=0)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    views: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
-    user = db.relationship("User", backref=db.backref("posts", lazy="dynamic"))
+    user: Mapped["User"] = relationship(back_populates="posts")
+    comments: Mapped[list["Comment"]] = relationship(
+        back_populates="post",
+        order_by="Comment.created_at.asc()",
+        cascade="all, delete-orphan",
+    )
+    likes: Mapped[list["PostLike"]] = relationship(
+        back_populates="post", cascade="all, delete-orphan"
+    )
 
     @property
-    def comment_count(self):
-        return self.comments.count()
+    def comment_count(self) -> int:
+        return len(self.comments)
 
     @property
-    def like_count(self):
-        return self.likes.count()
+    def like_count(self) -> int:
+        return len(self.likes)
 
 
-class Comment(db.Model):
+class Comment(Base):
     __tablename__ = "comments"
 
-    id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), nullable=False, index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
-    post = db.relationship("Post", backref=db.backref("comments", lazy="dynamic"))
-    user = db.relationship("User")
+    post: Mapped["Post"] = relationship(back_populates="comments")
+    user: Mapped["User"] = relationship()
 
 
-class PostLike(db.Model):
+class PostLike(Base):
     __tablename__ = "post_likes"
-    __table_args__ = (db.UniqueConstraint("post_id", "user_id", name="uq_post_user_like"),)
+    __table_args__ = (UniqueConstraint("post_id", "user_id", name="uq_post_user_like"),)
 
-    id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), nullable=False, index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
-    post = db.relationship("Post", backref=db.backref("likes", lazy="dynamic"))
+    post: Mapped["Post"] = relationship(back_populates="likes")
 
 
-class Build(db.Model):
+class Build(Base):
     """Build de gaming destacada ('Gamer Inicial', 'Gamer Intermedio', ...)."""
 
     __tablename__ = "builds"
 
-    id = db.Column(db.Integer, primary_key=True)
-    tier = db.Column(db.String(60), nullable=False)  # Inicial | Intermedio | Profesional | ...
-    name = db.Column(db.String(120), nullable=False)
-    tier_emoji = db.Column(db.String(10), nullable=False, default="🎮")
-    budget_label = db.Column(db.String(80), nullable=False, default="")
-    cpu = db.Column(db.String(150), nullable=False, default="")
-    gpu = db.Column(db.String(150), nullable=False, default="")
-    ram = db.Column(db.String(150), nullable=False, default="")
-    storage = db.Column(db.String(150), nullable=False, default="")
-    performance_note = db.Column(db.String(200), nullable=False, default="")
-    performance_pct = db.Column(db.Integer, nullable=False, default=50)
-    image_url = db.Column(db.String(500), nullable=False, default="")
-    featured = db.Column(db.Boolean, nullable=False, default=False)
-    active = db.Column(db.Boolean, nullable=False, default=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tier: Mapped[str] = mapped_column(String(60), nullable=False)  # Inicial | Intermedio | ...
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    tier_emoji: Mapped[str] = mapped_column(String(10), nullable=False, default="🎮")
+    budget_label: Mapped[str] = mapped_column(String(80), nullable=False, default="")
+    cpu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    gpu: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    ram: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    storage: Mapped[str] = mapped_column(String(150), nullable=False, default="")
+    performance_note: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    performance_pct: Mapped[int] = mapped_column(Integer, nullable=False, default=50)
+    image_url: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    featured: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)

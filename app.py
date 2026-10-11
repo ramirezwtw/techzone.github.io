@@ -1,116 +1,108 @@
+"""TechZone — aplicación FastAPI (server-side rendering con plantillas Jinja2).
+
+Arranque local:  uvicorn app:app --reload
+En Vercel:       @vercel/python detecta `app` como aplicación ASGI (ver vercel.json).
+"""
+
 import os
 
-from flask import Flask
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.sessions import SessionMiddleware
 
-from admin import admin_bp
-from auth import auth_bp
-from builds import builds_bp
-from community import community_bp
-from extensions import db, migrate
-from main import main_bp
-from profile import profile_bp
-from security import generate_csrf_token
-from seed_data import seed_admin_if_missing, seed_builds_if_empty, seed_products_if_empty
+import admin
+import auth
+import builds
+import community
+import main
+import profile
+from database import ON_VERCEL
+from security import RedirectException
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-# Vercel inyecta esta variable de entorno automáticamente en toda Serverless
-# Function (build, preview y producción). Nos sirve para detectar "estamos
-# corriendo en Vercel" sin depender de si DATABASE_URL está o no definida.
-ON_VERCEL = bool(os.environ.get("VERCEL"))
+ERROR_TITLES = {
+    403: "No tienes acceso a esta página",
+    404: "Página no encontrada",
+}
 
 
-def _build_database_uri():
-    """PostgreSQL obligatorio en Vercel vía DATABASE_URL; SQLite solo en desarrollo local."""
-    database_url = os.environ.get("DATABASE_URL")
+def create_app() -> FastAPI:
+    app = FastAPI(title="TechZone", description="Asesoría y catálogo de hardware para PC.")
 
-    if not database_url:
-        if ON_VERCEL:
-            # No hay filesystem persistente en Vercel: abrir un archivo SQLite
-            # ahí falla con "unable to open database file". En vez de dejar
-            # que ese error confuso ocurra más adelante, fallamos aquí mismo
-            # con un mensaje claro de qué falta configurar.
-            raise RuntimeError(
-                "DATABASE_URL es obligatoria en Vercel: configúrala como variable de entorno "
-                "de PostgreSQL en el proyecto de Vercel (Production/Preview) y vuelve a desplegar."
-            )
-        return "sqlite:///" + os.path.join(BASE_DIR, "database.db")
+    # Sesión firmada en cookie, equivalente a la sesión de Flask.
+    # max_age=None → cookie de sesión del navegador (sin fecha de expiración),
+    # igual que antes y como dice la política de cookies del sitio.
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=os.environ.get("SECRET_KEY", "dev-secret-change-me"),
+        session_cookie="techzone_session",
+        max_age=None,
+        same_site="lax",
+        https_only=ON_VERCEL,
+    )
 
-    # Algunos proveedores (Heroku, Render, ...) entregan "postgres://", pero
-    # SQLAlchemy 1.4+ requiere el esquema "postgresql://". Forzamos además el
-    # driver psycopg2, que es el que se instala en requirements.txt.
-    if database_url.startswith("postgres://"):
-        database_url = "postgresql://" + database_url[len("postgres://"):]
-    if database_url.startswith("postgresql://"):
-        database_url = "postgresql+psycopg2://" + database_url[len("postgresql://"):]
+    app.mount(
+        "/static",
+        StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+        name="static",
+    )
 
-    return database_url
+    app.include_router(main.router)
+    app.include_router(auth.router)
+    app.include_router(admin.router)
+    app.include_router(profile.router)
+    app.include_router(community.router)
+    app.include_router(builds.router)
 
+    register_exception_handlers(app)
 
-def _build_engine_options(database_uri):
-    if database_uri.startswith("sqlite://"):
-        return {}
-
-    # Entorno serverless (Vercel): cada invocación puede ejecutarse en un
-    # proceso/contenedor distinto, así que no conviene mantener un pool de
-    # conexiones persistente. pool_pre_ping evita usar conexiones muertas y
-    # un pool pequeño limita las conexiones simultáneas hacia Postgres.
-    return {
-        "pool_pre_ping": True,
-        "pool_size": 1,
-        "max_overflow": 2,
-        "pool_recycle": 280,
-    }
-
-
-def create_app():
-    app = Flask(__name__)
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
-
-    database_uri = _build_database_uri()
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = _build_engine_options(database_uri)
-
-    db.init_app(app)
-    migrate.init_app(app, db)
-
-    app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(profile_bp)
-    app.register_blueprint(community_bp)
-    app.register_blueprint(builds_bp)
-
-    app.jinja_env.globals["csrf_token"] = generate_csrf_token
-    app.jinja_env.filters["split_csv"] = lambda value: [v for v in (value or "").split(",") if v]
-
-    # Sin consultas a la base de datos aquí: create_app() se ejecuta en cada
-    # cold start de la Serverless Function de Vercel, y ahí no hay conexión
-    # garantizada ni es el lugar para crear/inspeccionar tablas. El esquema
-    # se gestiona con Alembic/Flask-Migrate (`flask db upgrade`) y los datos
-    # iniciales con el comando `flask seed-db` (ver más abajo), ambos
-    # ejecutados explícitamente por un humano, nunca en cada invocación.
-    register_cli(app)
-
+    # Sin consultas a la base de datos durante el arranque: este módulo se
+    # importa en cada cold start de la Serverless Function de Vercel, y ahí no
+    # hay conexión garantizada ni es el lugar para crear/inspeccionar tablas.
+    # El esquema se gestiona con Alembic (`alembic upgrade head`) y los datos
+    # iniciales con `python seed.py`, ambos ejecutados a mano por un humano.
     return app
 
 
-def register_cli(app):
-    @app.cli.command("seed-db")
-    def seed_db():
-        """Crea el admin y los datos iniciales. Ejecutar a mano una vez por entorno."""
-        with app.app_context():
-            seed_products_if_empty()
-            seed_builds_if_empty()
-            seed_admin_if_missing(
-                email=os.environ.get("ADMIN_EMAIL", "admin@techzone.app"),
-                password=os.environ.get("ADMIN_PASSWORD", "TechZone2026!"),
-            )
-        print("Seed completado.")
+def register_exception_handlers(app: FastAPI) -> None:
+    @app.exception_handler(RedirectException)
+    async def handle_redirect(request: Request, exc: RedirectException):
+        """Permite que una dependencia (p. ej. require_login) redirija al login."""
+        return RedirectResponse(exc.url, status_code=exc.status_code)
+
+    @app.exception_handler(StarletteHTTPException)
+    async def handle_http_error(request: Request, exc: StarletteHTTPException):
+        title = ERROR_TITLES.get(exc.status_code, "Algo salió mal")
+        detail = exc.detail if isinstance(exc.detail, str) else ""
+        return HTMLResponse(
+            f"""<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{exc.status_code} · TechZone</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body style="display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center">
+    <main style="padding:2rem">
+      <h1>{exc.status_code} — {title}</h1>
+      <p>{detail}</p>
+      <p><a href="/">Volver al inicio</a></p>
+    </main>
+  </body>
+</html>""",
+            status_code=exc.status_code,
+            headers=getattr(exc, "headers", None),
+        )
 
 
 app = create_app()
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    import uvicorn
+
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)

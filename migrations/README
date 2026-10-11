@@ -1,1 +1,5 @@
-Single-database configuration for Flask.
+Single-database configuration (Alembic + SQLAlchemy, sin Flask-Migrate).
+
+Comandos:
+  alembic upgrade head                     # aplicar migraciones
+  alembic revision --autogenerate -m "..."  # crear una nueva

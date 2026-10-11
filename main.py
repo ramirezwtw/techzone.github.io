@@ -1,8 +1,13 @@
-from flask import Blueprint, abort, render_template
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session, selectinload
 
+from database import get_db
 from models import Build, Comment, Post, Product, User
+from templating import render
 
-main_bp = Blueprint("main", __name__)
+router = APIRouter(default_response_class=HTMLResponse)
 
 LEGAL_PAGES = {
     "privacidad": {
@@ -41,28 +46,48 @@ LEGAL_PAGES = {
 }
 
 
-@main_bp.route("/")
-def index():
-    products = Product.query.filter_by(active=True).order_by(Product.id.asc()).all()
-    builds = Build.query.filter_by(active=True).order_by(Build.id.asc()).all()
-    recent_posts = Post.query.order_by(Post.created_at.desc()).limit(3).all()
+def _count(db: Session, model) -> int:
+    return db.scalar(select(func.count()).select_from(model)) or 0
+
+
+@router.get("/", name="main.index")
+def index(request: Request, db: Session = Depends(get_db)):
+    products = db.scalars(
+        select(Product).where(Product.active.is_(True)).order_by(Product.id.asc())
+    ).all()
+    builds = db.scalars(
+        select(Build).where(Build.active.is_(True)).order_by(Build.id.asc())
+    ).all()
+    recent_posts = db.scalars(
+        select(Post)
+        .options(
+            selectinload(Post.user),
+            selectinload(Post.comments),
+            selectinload(Post.likes),
+        )
+        .order_by(Post.created_at.desc())
+        .limit(3)
+    ).all()
     community_stats = dict(
-        users=User.query.count(),
-        posts=Post.query.count(),
-        comments=Comment.query.count(),
+        users=_count(db, User),
+        posts=_count(db, Post),
+        comments=_count(db, Comment),
     )
-    return render_template(
+    return render(
+        request,
         "index.html",
-        products=products,
-        builds=builds,
-        recent_posts=recent_posts,
-        community_stats=community_stats,
+        {
+            "products": products,
+            "builds": builds,
+            "recent_posts": recent_posts,
+            "community_stats": community_stats,
+        },
     )
 
 
-@main_bp.route("/legal/<slug>")
-def legal(slug):
+@router.get("/legal/{slug}", name="main.legal")
+def legal(request: Request, slug: str):
     page = LEGAL_PAGES.get(slug)
     if page is None:
-        abort(404)
-    return render_template("legal.html", page=page)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Página no encontrada.")
+    return render(request, "legal.html", {"page": page})

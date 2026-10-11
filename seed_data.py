@@ -1,5 +1,11 @@
-from extensions import db
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+
 from models import Build, Product, User
+
+
+def _is_empty(db: Session, model) -> bool:
+    return (db.scalar(select(func.count()).select_from(model)) or 0) == 0
 
 # Datos iniciales tomados literalmente de la sección "Hardware" del index.html
 # original, para que el catálogo público no cambie visualmente al pasar a
@@ -81,11 +87,11 @@ INITIAL_PRODUCTS = [
 ]
 
 
-def seed_products_if_empty():
-    if Product.query.count() == 0:
+def seed_products_if_empty(db: Session) -> None:
+    if _is_empty(db, Product):
         for data in INITIAL_PRODUCTS:
-            db.session.add(Product(**data))
-        db.session.commit()
+            db.add(Product(**data))
+        db.commit()
 
 
 # Datos tomados literalmente de la sección "Gaming" del index.html original.
@@ -135,16 +141,17 @@ INITIAL_BUILDS = [
 ]
 
 
-def seed_builds_if_empty():
-    if Build.query.count() == 0:
+def seed_builds_if_empty(db: Session) -> None:
+    if _is_empty(db, Build):
         for data in INITIAL_BUILDS:
-            db.session.add(Build(**data))
-        db.session.commit()
+            db.add(Build(**data))
+        db.commit()
 
 
-def seed_admin_if_missing(email, password, name="Administrador"):
-    if User.query.filter_by(email=email).first() is None:
+def seed_admin_if_missing(db: Session, email, password, name="Administrador") -> None:
+    existing = db.scalars(select(User).where(User.email == email)).first()
+    if existing is None:
         admin = User(name=name, email=email, role="admin", active=True, email_verified=True)
         admin.set_password(password)
-        db.session.add(admin)
-        db.session.commit()
+        db.add(admin)
+        db.commit()

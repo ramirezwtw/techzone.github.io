@@ -18,11 +18,11 @@
       </a>
 
       <nav class="admin-nav" aria-label="Navegación del panel">
-        <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {{ 'active' if request.endpoint == 'admin.dashboard' else '' }}">Dashboard</a>
-        <a href="{{ url_for('admin.products') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.product') else '' }}">Productos</a>
-        <a href="{{ url_for('admin.builds') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.build') else '' }}">Builds</a>
-        <a href="{{ url_for('admin.users') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.user') else '' }}">Usuarios</a>
-        <a href="{{ url_for('admin.solicitudes') }}" class="admin-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.solicitud') else '' }}">Solicitudes</a>
+        <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {{ 'active' if endpoint == 'admin.dashboard' else '' }}">Dashboard</a>
+        <a href="{{ url_for('admin.products') }}" class="admin-nav-link {{ 'active' if endpoint and endpoint.startswith('admin.product') else '' }}">Productos</a>
+        <a href="{{ url_for('admin.builds') }}" class="admin-nav-link {{ 'active' if endpoint and endpoint.startswith('admin.build') else '' }}">Builds</a>
+        <a href="{{ url_for('admin.users') }}" class="admin-nav-link {{ 'active' if endpoint and endpoint.startswith('admin.user') else '' }}">Usuarios</a>
+        <a href="{{ url_for('admin.solicitudes') }}" class="admin-nav-link {{ 'active' if endpoint and endpoint.startswith('admin.solicitud') else '' }}">Solicitudes</a>
       </nav>
 
       <div class="admin-sidebar-footer">
