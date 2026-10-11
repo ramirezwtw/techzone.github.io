@@ -7,16 +7,28 @@ tanto `uvicorn app:app --reload` como @vercel/python (ver vercel.json).
 import os
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
+from techzone.api import v1 as api_v1
 from techzone.core.database import ON_VERCEL
-from techzone.routers import admin, auth, builds, community, main, profile
 from techzone.core.security import RedirectException
+from techzone.routers import admin, auth, builds, community, main, profile
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# El frontend Astro se sirve desde el mismo dominio, así que en producción no
+# hace falta CORS. En desarrollo vive en su propio puerto (4321) y sí lo pide;
+# son endpoints públicos de solo lectura, sin cookies (allow_credentials=False).
+DEV_ORIGINS = ["http://localhost:4321", "http://127.0.0.1:4321"]
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CORS_ORIGINS", ",".join([] if ON_VERCEL else DEV_ORIGINS)).split(",")
+    if origin.strip()
+]
 
 ERROR_TITLES = {
     403: "No tienes acceso a esta página",
@@ -39,12 +51,23 @@ def create_app() -> FastAPI:
         https_only=ON_VERCEL,
     )
 
+    if CORS_ORIGINS:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=CORS_ORIGINS,
+            allow_methods=["GET"],
+            allow_headers=["*"],
+            allow_credentials=False,
+        )
+
     app.mount(
         "/static",
         StaticFiles(directory=os.path.join(BASE_DIR, "static")),
         name="static",
     )
 
+    # API JSON (la consume el frontend Astro) + sitio renderizado con Jinja.
+    app.include_router(api_v1.router)
     app.include_router(main.router)
     app.include_router(auth.router)
     app.include_router(admin.router)
@@ -70,8 +93,19 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(StarletteHTTPException)
     async def handle_http_error(request: Request, exc: StarletteHTTPException):
-        title = ERROR_TITLES.get(exc.status_code, "Algo salió mal")
         detail = exc.detail if isinstance(exc.detail, str) else ""
+
+        # La API responde JSON; el sitio renderizado, una página de error.
+        if request.url.path.startswith(f"{api_v1.router.prefix}/") or request.url.path.startswith(
+            "/api/"
+        ):
+            return JSONResponse(
+                {"detail": detail or "Error"},
+                status_code=exc.status_code,
+                headers=getattr(exc, "headers", None),
+            )
+
+        title = ERROR_TITLES.get(exc.status_code, "Algo salió mal")
         return HTMLResponse(
             f"""<!doctype html>
 <html lang="es">
