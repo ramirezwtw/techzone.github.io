@@ -9,12 +9,10 @@ traduce a una respuesta 303.
 import secrets
 from typing import Optional
 
-from fastapi import Depends, HTTPException, Request, status
-from sqlalchemy.orm import Session
+from fastapi import HTTPException, Request, status
 
-from techzone.database import get_db
+from techzone.core.templating import CSRF_KEY, flash, url_for
 from techzone.models import User
-from techzone.templating import CSRF_KEY, flash, url_for
 
 
 class RedirectException(Exception):
@@ -58,13 +56,3 @@ def require_admin(request: Request) -> int:
             detail="No tienes permisos para entrar al panel de administración.",
         )
     return user_id
-
-
-def current_user(
-    request: Request, db: Session = Depends(get_db)
-) -> Optional[User]:
-    """Usuario autenticado, o None si la sesión está vacía."""
-    user_id = request.session.get("user_id")
-    if not user_id:
-        return None
-    return db.get(User, user_id)

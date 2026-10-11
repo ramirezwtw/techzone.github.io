@@ -1,15 +1,24 @@
-from decimal import Decimal, InvalidOperation
+"""Panel de administración: productos, builds, usuarios y solicitudes.
+
+Capa HTTP. Las validaciones y las reglas están en `techzone.services`.
+"""
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 
-from techzone.database import get_db
-from techzone.models import Build, BuildRequest, Product, User, utcnow
-from techzone.security import require_admin, validate_csrf
-from techzone.templating import flash, redirect, render
+from techzone.core.database import get_db
+from techzone.core.security import require_admin, validate_csrf
+from techzone.core.templating import flash, redirect, render
+from techzone.models import BuildRequest
+from techzone.repositories import builds as builds_repo
+from techzone.repositories import products as products_repo
+from techzone.repositories import users as users_repo
+from techzone.services import accounts, catalog
+from techzone.services import build_requests as requests_service
+from techzone.services import stats
 
 # El control de acceso se aplica a todo el router: equivale al @admin_required
 # que llevaba cada vista en la versión Flask.
@@ -19,19 +28,18 @@ router = APIRouter(
     dependencies=[Depends(require_admin)],
 )
 
-
-def _count(db: Session, model, *criteria) -> int:
-    statement = select(func.count()).select_from(model)
-    if criteria:
-        statement = statement.where(*criteria)
-    return db.scalar(statement) or 0
+CSRF_EXPIRED = "Tu sesión expiró, intenta de nuevo."
 
 
-def _get_or_404(db: Session, model, pk: int, message: str):
-    instance = db.get(model, pk)
+def _found(instance, message: str):
     if instance is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
     return instance
+
+
+def _flash_all(request: Request, errors) -> None:
+    for error in errors:
+        flash(request, error, "error")
 
 
 # ──────────────────────────── Dashboard ───────────────────────────────
@@ -39,20 +47,7 @@ def _get_or_404(db: Session, model, pk: int, message: str):
 
 @router.get("/", name="admin.dashboard")
 def dashboard(request: Request, db: Session = Depends(get_db)):
-    return render(
-        request,
-        "admin/dashboard.html",
-        {
-            "total_users": _count(db, User),
-            "total_products": _count(db, Product),
-            "active_products": _count(db, Product, Product.active.is_(True)),
-            "out_of_stock": _count(db, Product, Product.stock <= 0, Product.active.is_(True)),
-            "admins": _count(db, User, User.role == "admin"),
-            "pending_requests": _count(
-                db, BuildRequest, BuildRequest.status.in_(["Pendiente", "En revisión"])
-            ),
-        },
-    )
+    return render(request, "admin/dashboard.html", stats.admin_dashboard(db))
 
 
 # ──────────────────────────── Productos ───────────────────────────────
@@ -60,59 +55,10 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/products", name="admin.products")
 def products(request: Request, db: Session = Depends(get_db)):
-    items = db.scalars(select(Product).order_by(Product.id.desc())).all()
-    return render(request, "admin/products.html", {"products": items})
+    return render(request, "admin/products.html", {"products": products_repo.list_all(db)})
 
 
-def _parse_product_form(form):
-    errors = []
-    name = form.get("name", "").strip()
-    brand = form.get("brand", "").strip()
-    description = form.get("description", "").strip()
-    image_url = form.get("image_url", "").strip()
-
-    if not name:
-        errors.append("El nombre del producto es obligatorio.")
-    if not brand:
-        errors.append("La marca/categoría es obligatoria.")
-
-    try:
-        price = Decimal(form.get("price", "0") or "0")
-        if price < 0:
-            errors.append("El precio no puede ser negativo.")
-    except InvalidOperation:
-        errors.append("El precio debe ser un número válido.")
-        price = Decimal("0")
-
-    try:
-        stock = int(form.get("stock", "0") or "0")
-        if stock < 0:
-            errors.append("El stock no puede ser negativo.")
-    except ValueError:
-        errors.append("El stock debe ser un número entero.")
-        stock = 0
-
-    data = dict(
-        name=name,
-        brand=brand,
-        description=description,
-        image_url=image_url,
-        price=price,
-        stock=stock,
-        active=form.get("active") == "on",
-    )
-    return data, errors
-
-
-def _product_form_payload(
-    name: str,
-    brand: str,
-    description: str,
-    image_url: str,
-    price: str,
-    stock: str,
-    active: Optional[str],
-):
+def _product_form(name, brand, description, image_url, price, stock, active) -> dict:
     return {
         "name": name,
         "brand": brand,
@@ -143,15 +89,14 @@ def product_new(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.product_new")
 
-    data, errors = _parse_product_form(
-        _product_form_payload(name, brand, description, image_url, price, stock, active)
+    data, errors = catalog.parse_product_form(
+        _product_form(name, brand, description, image_url, price, stock, active)
     )
     if errors:
-        for error in errors:
-            flash(request, error, "error")
+        _flash_all(request, errors)
         return render(
             request,
             "admin/product_form.html",
@@ -159,15 +104,14 @@ def product_new(
             status_code=400,
         )
 
-    db.add(Product(**data))
-    db.commit()
+    catalog.create_product(db, data)
     flash(request, "Producto creado correctamente.", "success")
     return redirect(request, "admin.products")
 
 
 @router.get("/products/{product_id}/edit", name="admin.product_edit")
 def product_edit_form(request: Request, product_id: int, db: Session = Depends(get_db)):
-    product = _get_or_404(db, Product, product_id, "Producto no encontrado.")
+    product = _found(products_repo.get(db, product_id), "Producto no encontrado.")
     return render(
         request,
         "admin/product_form.html",
@@ -189,18 +133,17 @@ def product_edit(
     csrf_token: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    product = _get_or_404(db, Product, product_id, "Producto no encontrado.")
+    product = _found(products_repo.get(db, product_id), "Producto no encontrado.")
 
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.product_edit", product_id=product_id)
 
-    data, errors = _parse_product_form(
-        _product_form_payload(name, brand, description, image_url, price, stock, active)
+    data, errors = catalog.parse_product_form(
+        _product_form(name, brand, description, image_url, price, stock, active)
     )
     if errors:
-        for error in errors:
-            flash(request, error, "error")
+        _flash_all(request, errors)
         return render(
             request,
             "admin/product_form.html",
@@ -208,9 +151,7 @@ def product_edit(
             status_code=400,
         )
 
-    for key, value in data.items():
-        setattr(product, key, value)
-    db.commit()
+    catalog.update_product(db, product, data)
     flash(request, "Cambios guardados. La página pública ya se actualizó.", "success")
     return redirect(request, "admin.products")
 
@@ -223,13 +164,12 @@ def product_toggle_active(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.products")
 
-    product = _get_or_404(db, Product, product_id, "Producto no encontrado.")
-    product.active = not product.active
-    db.commit()
-    flash(request, f"{product.name} {'activado' if product.active else 'desactivado'}.", "success")
+    product = _found(products_repo.get(db, product_id), "Producto no encontrado.")
+    activo = catalog.toggle_product(db, product)
+    flash(request, f"{product.name} {'activado' if activo else 'desactivado'}.", "success")
     return redirect(request, "admin.products")
 
 
@@ -241,12 +181,11 @@ def product_delete(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.products")
 
-    product = _get_or_404(db, Product, product_id, "Producto no encontrado.")
-    db.delete(product)
-    db.commit()
+    product = _found(products_repo.get(db, product_id), "Producto no encontrado.")
+    catalog.delete_product(db, product)
     flash(request, "Producto eliminado permanentemente.", "success")
     return redirect(request, "admin.products")
 
@@ -256,8 +195,7 @@ def product_delete(
 
 @router.get("/users", name="admin.users")
 def users(request: Request, db: Session = Depends(get_db)):
-    items = db.scalars(select(User).order_by(User.id.asc())).all()
-    return render(request, "admin/users.html", {"users": items})
+    return render(request, "admin/users.html", {"users": users_repo.list_all(db)})
 
 
 @router.post("/users/{user_id}/toggle-active", name="admin.user_toggle_active")
@@ -268,17 +206,16 @@ def user_toggle_active(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.users")
 
-    user = _get_or_404(db, User, user_id, "Usuario no encontrado.")
+    user = _found(users_repo.get(db, user_id), "Usuario no encontrado.")
     if user.id == request.session.get("user_id"):
         flash(request, "No puedes desactivar tu propia cuenta.", "error")
         return redirect(request, "admin.users")
 
-    user.active = not user.active
-    db.commit()
-    flash(request, f"{user.name} {'activado' if user.active else 'desactivado'}.", "success")
+    activo = accounts.toggle_active(db, user)
+    flash(request, f"{user.name} {'activado' if activo else 'desactivado'}.", "success")
     return redirect(request, "admin.users")
 
 
@@ -291,10 +228,10 @@ def user_change_role(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.users")
 
-    user = _get_or_404(db, User, user_id, "Usuario no encontrado.")
+    user = _found(users_repo.get(db, user_id), "Usuario no encontrado.")
     if role not in ("user", "admin"):
         flash(request, "Rol inválido.", "error")
         return redirect(request, "admin.users")
@@ -303,8 +240,7 @@ def user_change_role(
         flash(request, "No puedes quitarte el rol de administrador a ti mismo.", "error")
         return redirect(request, "admin.users")
 
-    user.role = role
-    db.commit()
+    accounts.change_role(db, user, role)
     flash(request, f"Rol de {user.name} actualizado a {role}.", "success")
     return redirect(request, "admin.users")
 
@@ -314,90 +250,56 @@ def user_change_role(
 
 @router.get("/solicitudes", name="admin.solicitudes")
 def solicitudes(request: Request, db: Session = Depends(get_db)):
-    items = db.scalars(
-        select(BuildRequest)
-        .options(selectinload(BuildRequest.user))
-        .order_by(BuildRequest.created_at.desc())
-    ).all()
-    return render(request, "admin/solicitudes.html", {"requests": items})
+    return render(
+        request, "admin/solicitudes.html", {"requests": requests_service.all_requests(db)}
+    )
 
 
 def _render_solicitud(request: Request, db: Session, build_request: BuildRequest):
-    products = db.scalars(
-        select(Product).where(Product.active.is_(True)).order_by(Product.name.asc())
-    ).all()
     return render(
         request,
         "admin/solicitud_detalle.html",
-        {"r": build_request, "products": products},
+        {"r": build_request, "products": products_repo.list_active_by_name(db)},
     )
 
 
 @router.get("/solicitudes/{request_id}", name="admin.solicitud_detalle")
 def solicitud_detalle_form(request: Request, request_id: int, db: Session = Depends(get_db)):
-    build_request = _get_or_404(db, BuildRequest, request_id, "Solicitud no encontrada.")
+    build_request = _found(requests_service.get(db, request_id), "Solicitud no encontrada.")
     return _render_solicitud(request, db, build_request)
 
 
 @router.post("/solicitudes/{request_id}", name="admin.solicitud_detalle")
 async def solicitud_detalle(request: Request, request_id: int, db: Session = Depends(get_db)):
-    build_request = _get_or_404(db, BuildRequest, request_id, "Solicitud no encontrada.")
+    build_request = _found(requests_service.get(db, request_id), "Solicitud no encontrada.")
 
     # Un solo formulario con dos acciones (cambiar estado / guardar
-    # recomendación) y muchos campos: se lee completo, como en la versión Flask.
+    # recomendación) y muchos campos, así que se lee completo.
     form = await request.form()
 
     if not validate_csrf(request, form.get("csrf_token")):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.solicitud_detalle", request_id=request_id)
 
     action = form.get("action")
 
     if action == "update_status":
-        new_status = form.get("status")
-        if new_status not in BuildRequest.STATUSES:
-            flash(request, "Estado inválido.", "error")
-        else:
-            build_request.status = new_status
-            db.commit()
+        if requests_service.update_status(db, build_request, form.get("status")):
             flash(request, "Estado de la solicitud actualizado.", "success")
+        else:
+            flash(request, "Estado inválido.", "error")
         return redirect(request, "admin.solicitud_detalle", request_id=request_id)
 
     if action == "save_recommendation":
-        build_request.rec_cpu = form.get("rec_cpu", "").strip()
-        build_request.rec_gpu = form.get("rec_gpu", "").strip()
-        build_request.rec_motherboard = form.get("rec_motherboard", "").strip()
-        build_request.rec_ram = form.get("rec_ram", "").strip()
-        build_request.rec_storage = form.get("rec_storage", "").strip()
-        build_request.rec_psu = form.get("rec_psu", "").strip()
-        build_request.rec_case = form.get("rec_case", "").strip()
-        build_request.rec_cooling = form.get("rec_cooling", "").strip()
-        build_request.rec_monitor = form.get("rec_monitor", "").strip()
-        build_request.rec_other = form.get("rec_other", "").strip()
-        build_request.rec_explanation = form.get("rec_explanation", "").strip()
-
-        price_raw = form.get("rec_price_estimate", "").strip()
-        try:
-            build_request.rec_price_estimate = Decimal(price_raw) if price_raw else None
-        except InvalidOperation:
-            db.rollback()
-            flash(request, "El precio estimado debe ser un número válido.", "error")
-            return redirect(request, "admin.solicitud_detalle", request_id=request_id)
-
-        if not build_request.rec_explanation:
-            db.rollback()
-            flash(request, "Agrega una explicación de la recomendación.", "error")
-            return redirect(request, "admin.solicitud_detalle", request_id=request_id)
-
-        build_request.rec_created_at = utcnow()
-        if build_request.status in ("Pendiente", "En revisión"):
-            build_request.status = "Recomendación lista"
-        db.commit()
-        flash(
-            request,
-            "Recomendación guardada. El usuario ya puede verla en su perfil.",
-            "success",
-        )
+        errors = requests_service.save_recommendation(db, build_request, form)
+        if errors:
+            _flash_all(request, errors)
+        else:
+            flash(
+                request,
+                "Recomendación guardada. El usuario ya puede verla en su perfil.",
+                "success",
+            )
         return redirect(request, "admin.solicitud_detalle", request_id=request_id)
 
     return _render_solicitud(request, db, build_request)
@@ -408,70 +310,13 @@ async def solicitud_detalle(request: Request, request_id: int, db: Session = Dep
 
 @router.get("/builds", name="admin.builds")
 def builds(request: Request, db: Session = Depends(get_db)):
-    items = db.scalars(select(Build).order_by(Build.id.asc())).all()
-    return render(request, "admin/builds.html", {"builds": items})
+    return render(request, "admin/builds.html", {"builds": builds_repo.list_all(db)})
 
 
-def _parse_build_form(form):
-    errors = []
-    tier = form.get("tier", "").strip()
-    name = form.get("name", "").strip()
-    tier_emoji = form.get("tier_emoji", "🎮").strip() or "🎮"
-    budget_label = form.get("budget_label", "").strip()
-    cpu = form.get("cpu", "").strip()
-    gpu = form.get("gpu", "").strip()
-    ram = form.get("ram", "").strip()
-    storage = form.get("storage", "").strip()
-    performance_note = form.get("performance_note", "").strip()
-    image_url = form.get("image_url", "").strip()
-
-    if not tier:
-        errors.append("El nivel (tier) es obligatorio.")
-    if not name:
-        errors.append("El nombre de la build es obligatorio.")
-    if not budget_label:
-        errors.append("Indica el rango de presupuesto.")
-
-    try:
-        performance_pct = int(form.get("performance_pct", "50") or "50")
-        performance_pct = max(0, min(100, performance_pct))
-    except ValueError:
-        errors.append("El porcentaje de rendimiento debe ser un número entero.")
-        performance_pct = 50
-
-    data = dict(
-        tier=tier,
-        name=name,
-        tier_emoji=tier_emoji,
-        budget_label=budget_label,
-        cpu=cpu,
-        gpu=gpu,
-        ram=ram,
-        storage=storage,
-        performance_note=performance_note,
-        performance_pct=performance_pct,
-        image_url=image_url,
-        featured=form.get("featured") == "on",
-        active=form.get("active") == "on",
-    )
-    return data, errors
-
-
-def _build_form_payload(
-    tier: str,
-    name: str,
-    tier_emoji: str,
-    budget_label: str,
-    cpu: str,
-    gpu: str,
-    ram: str,
-    storage: str,
-    performance_note: str,
-    performance_pct: str,
-    image_url: str,
-    featured: Optional[str],
-    active: Optional[str],
-):
+def _build_form(
+    tier, name, tier_emoji, budget_label, cpu, gpu, ram, storage,
+    performance_note, performance_pct, image_url, featured, active,
+) -> dict:
     return {
         "tier": tier,
         "name": name,
@@ -499,7 +344,7 @@ def build_new(
     request: Request,
     tier: str = Form(""),
     name: str = Form(""),
-    tier_emoji: str = Form("🎮"),
+    tier_emoji: str = Form(catalog.DEFAULT_TIER_EMOJI),
     budget_label: str = Form(""),
     cpu: str = Form(""),
     gpu: str = Form(""),
@@ -514,31 +359,29 @@ def build_new(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.build_new")
 
-    data, errors = _parse_build_form(
-        _build_form_payload(
+    data, errors = catalog.parse_build_form(
+        _build_form(
             tier, name, tier_emoji, budget_label, cpu, gpu, ram, storage,
             performance_note, performance_pct, image_url, featured, active,
         )
     )
     if errors:
-        for error in errors:
-            flash(request, error, "error")
+        _flash_all(request, errors)
         return render(
             request, "admin/build_form.html", {"build": data, "mode": "new"}, status_code=400
         )
 
-    db.add(Build(**data))
-    db.commit()
+    catalog.create_build(db, data)
     flash(request, "Build creada correctamente.", "success")
     return redirect(request, "admin.builds")
 
 
 @router.get("/builds/{build_id}/edit", name="admin.build_edit")
 def build_edit_form(request: Request, build_id: int, db: Session = Depends(get_db)):
-    build = _get_or_404(db, Build, build_id, "Build no encontrada.")
+    build = _found(builds_repo.get(db, build_id), "Build no encontrada.")
     return render(
         request,
         "admin/build_form.html",
@@ -552,7 +395,7 @@ def build_edit(
     build_id: int,
     tier: str = Form(""),
     name: str = Form(""),
-    tier_emoji: str = Form("🎮"),
+    tier_emoji: str = Form(catalog.DEFAULT_TIER_EMOJI),
     budget_label: str = Form(""),
     cpu: str = Form(""),
     gpu: str = Form(""),
@@ -566,21 +409,20 @@ def build_edit(
     csrf_token: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    build = _get_or_404(db, Build, build_id, "Build no encontrada.")
+    build = _found(builds_repo.get(db, build_id), "Build no encontrada.")
 
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.build_edit", build_id=build_id)
 
-    data, errors = _parse_build_form(
-        _build_form_payload(
+    data, errors = catalog.parse_build_form(
+        _build_form(
             tier, name, tier_emoji, budget_label, cpu, gpu, ram, storage,
             performance_note, performance_pct, image_url, featured, active,
         )
     )
     if errors:
-        for error in errors:
-            flash(request, error, "error")
+        _flash_all(request, errors)
         return render(
             request,
             "admin/build_form.html",
@@ -588,9 +430,7 @@ def build_edit(
             status_code=400,
         )
 
-    for key, value in data.items():
-        setattr(build, key, value)
-    db.commit()
+    catalog.update_build(db, build, data)
     flash(request, "Cambios guardados. La página pública ya se actualizó.", "success")
     return redirect(request, "admin.builds")
 
@@ -603,13 +443,12 @@ def build_toggle_active(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.builds")
 
-    build = _get_or_404(db, Build, build_id, "Build no encontrada.")
-    build.active = not build.active
-    db.commit()
-    flash(request, f"{build.name} {'activada' if build.active else 'desactivada'}.", "success")
+    build = _found(builds_repo.get(db, build_id), "Build no encontrada.")
+    activa = catalog.toggle_build(db, build)
+    flash(request, f"{build.name} {'activada' if activa else 'desactivada'}.", "success")
     return redirect(request, "admin.builds")
 
 
@@ -621,11 +460,10 @@ def build_delete(
     db: Session = Depends(get_db),
 ):
     if not validate_csrf(request, csrf_token):
-        flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
+        flash(request, CSRF_EXPIRED, "error")
         return redirect(request, "admin.builds")
 
-    build = _get_or_404(db, Build, build_id, "Build no encontrada.")
-    db.delete(build)
-    db.commit()
+    build = _found(builds_repo.get(db, build_id), "Build no encontrada.")
+    catalog.delete_build(db, build)
     flash(request, "Build eliminada permanentemente.", "success")
     return redirect(request, "admin.builds")

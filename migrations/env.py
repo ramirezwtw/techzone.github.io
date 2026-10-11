@@ -10,7 +10,7 @@ from logging.config import fileConfig
 from alembic import context
 
 from techzone import models  # noqa: F401  (importarlo registra las tablas en Base.metadata)
-from techzone.database import DATABASE_URL, Base, engine
+from techzone.core.database import DATABASE_URL, Base, engine
 
 # Objeto de configuración de Alembic (lee alembic.ini).
 config = context.config

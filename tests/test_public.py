@@ -1,6 +1,6 @@
 """Páginas públicas: home, legales, builds y archivos estáticos."""
 
-from techzone.database import SessionLocal
+from techzone.core.database import SessionLocal
 from techzone.models import Build, Product
 
 

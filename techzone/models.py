@@ -5,8 +5,7 @@ mismos nombres de tabla y de columna, así que la base de datos existente
 (PostgreSQL o el SQLite local) sigue sirviendo sin migraciones nuevas.
 """
 
-import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -19,13 +18,11 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
-    delete,
-    select,
 )
-from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from techzone.database import Base
+from techzone.core.database import Base
 
 
 def utcnow():
@@ -75,30 +72,6 @@ class AuthToken(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
     user: Mapped["User"] = relationship()
-
-    @classmethod
-    def issue(cls, db: Session, user: "User", purpose: str) -> "AuthToken":
-        # Invalida cualquier token anterior sin usar del mismo tipo para este usuario.
-        db.execute(
-            delete(cls).where(
-                cls.user_id == user.id,
-                cls.purpose == purpose,
-                cls.used_at.is_(None),
-            )
-        )
-
-        instance = cls(
-            user_id=user.id,
-            token=secrets.token_urlsafe(32),
-            purpose=purpose,
-            expires_at=utcnow() + timedelta(hours=cls.TTL_HOURS[purpose]),
-        )
-        db.add(instance)
-        return instance
-
-    @classmethod
-    def find(cls, db: Session, token: str, purpose: str) -> Optional["AuthToken"]:
-        return db.scalars(select(cls).where(cls.token == token, cls.purpose == purpose)).first()
 
     @property
     def is_valid(self) -> bool:

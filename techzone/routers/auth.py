@@ -1,16 +1,17 @@
-import re
+"""Registro, login, verificación de correo y recuperación de contraseña.
+
+Capa HTTP: valida CSRF, delega en `services.accounts` y decide a dónde ir.
+"""
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from techzone.database import get_db
-from techzone.mailer import send_password_reset_email, send_verification_email
-from techzone.models import AuthToken, User
-from techzone.security import login_session, validate_csrf
-from techzone.templating import (
+from techzone.core.database import get_db
+from techzone.core.security import login_session, validate_csrf
+from techzone.core.templating import (
     back_or,
     external_url_for,
     flash,
@@ -18,17 +19,19 @@ from techzone.templating import (
     redirect_to,
     render,
 )
+from techzone.models import AuthToken
+from techzone.repositories import users as users_repo
+from techzone.services import accounts
 
 router = APIRouter(default_response_class=HTMLResponse)
 
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+def _verification_url(request: Request):
+    return lambda token: external_url_for(request, "auth.verify_email", token=token)
 
 
-def _issue_and_send_verification(request: Request, db: Session, user: User) -> None:
-    token = AuthToken.issue(db, user, AuthToken.PURPOSE_VERIFY)
-    db.commit()
-    url = external_url_for(request, "auth.verify_email", token=token.token)
-    send_verification_email(user, url)
+def _reset_url(request: Request):
+    return lambda token: external_url_for(request, "auth.reset_password", token=token)
 
 
 def _safe_next(next_url: Optional[str]) -> Optional[str]:
@@ -36,10 +39,6 @@ def _safe_next(next_url: Optional[str]) -> Optional[str]:
     if next_url and next_url.startswith("/") and not next_url.startswith("//"):
         return next_url
     return None
-
-
-def _get_user_by_email(db: Session, email: str) -> Optional[User]:
-    return db.scalars(select(User).where(User.email == email)).first()
 
 
 @router.get("/login", name="auth.login")
@@ -60,14 +59,14 @@ def login(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return redirect(request, "auth.login")
 
-    email = email.strip().lower()
+    user, error = accounts.authenticate(db, email, password)
+    email = accounts.normalize_email(email)
 
-    user = _get_user_by_email(db, email)
-    if user is None or not user.check_password(password):
+    if error == accounts.CREDENTIALS_INVALID:
         flash(request, "Correo o contraseña incorrectos.", "error")
         return render(request, "login.html", {"email": email}, status_code=401)
 
-    if not user.active:
+    if error == accounts.ACCOUNT_INACTIVE:
         flash(request, "Tu cuenta está desactivada. Contacta a un administrador.", "error")
         return render(request, "login.html", {"email": email}, status_code=403)
 
@@ -101,33 +100,18 @@ def registro(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return redirect(request, "auth.registro")
 
-    name = name.strip()
-    email = email.strip().lower()
-
-    errors = []
-    if len(name) < 2:
-        errors.append("Ingresa tu nombre completo.")
-    if not EMAIL_RE.match(email):
-        errors.append("Ingresa un correo electrónico válido.")
-    if len(password) < 8:
-        errors.append("La contraseña debe tener al menos 8 caracteres.")
-    if password != password_confirm:
-        errors.append("Las contraseñas no coinciden.")
-    if not errors and _get_user_by_email(db, email) is not None:
-        errors.append("Ya existe una cuenta registrada con ese correo.")
-
+    user, errors = accounts.register(db, name, email, password, password_confirm)
     if errors:
         for error in errors:
             flash(request, error, "error")
         return render(
-            request, "registro.html", {"name": name, "email": email}, status_code=400
+            request,
+            "registro.html",
+            {"name": name.strip(), "email": accounts.normalize_email(email)},
+            status_code=400,
         )
 
-    user = User(name=name, email=email, role="user", active=True)
-    user.set_password(password)
-    db.add(user)
-    db.flush()
-    _issue_and_send_verification(request, db, user)
+    accounts.send_verification(db, user, _verification_url(request))
 
     login_session(request, user)
     flash(
@@ -147,15 +131,12 @@ def logout(request: Request):
 
 @router.get("/verify-email/{token}", name="auth.verify_email")
 def verify_email(request: Request, token: str, db: Session = Depends(get_db)):
-    auth_token = AuthToken.find(db, token, AuthToken.PURPOSE_VERIFY)
-
-    if auth_token is None or not auth_token.is_valid:
+    auth_token = accounts.find_valid_token(db, token, AuthToken.PURPOSE_VERIFY)
+    if auth_token is None:
         flash(request, "El enlace de verificación no es válido o ya venció.", "error")
         return redirect(request, "auth.login")
 
-    auth_token.user.email_verified = True
-    auth_token.mark_used()
-    db.commit()
+    accounts.confirm_email(db, auth_token)
     flash(request, "Tu cuenta quedó verificada correctamente.", "success")
     return redirect(request, "main.index")
 
@@ -170,7 +151,8 @@ def reenviar_verificacion(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return back_or(request, "main.index")
 
-    user = db.get(User, request.session.get("user_id")) if request.session.get("user_id") else None
+    user_id = request.session.get("user_id")
+    user = users_repo.get(db, user_id) if user_id else None
     if user is None:
         flash(request, "Debes iniciar sesión para continuar.", "error")
         return redirect(request, "auth.login")
@@ -178,7 +160,7 @@ def reenviar_verificacion(
     if user.email_verified:
         flash(request, "Tu cuenta ya está verificada.", "success")
     else:
-        _issue_and_send_verification(request, db, user)
+        accounts.send_verification(db, user, _verification_url(request))
         flash(request, "Te enviamos un nuevo correo de verificación.", "success")
 
     return back_or(request, "main.index")
@@ -200,12 +182,7 @@ def forgot_password(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return redirect(request, "auth.forgot_password")
 
-    user = _get_user_by_email(db, email.strip().lower())
-    if user is not None and user.active:
-        token = AuthToken.issue(db, user, AuthToken.PURPOSE_RESET)
-        db.commit()
-        url = external_url_for(request, "auth.reset_password", token=token.token)
-        send_password_reset_email(user, url)
+    accounts.start_password_reset(db, email, _reset_url(request))
 
     # Mensaje genérico: no revela si el correo existe o no en el sistema.
     flash(
@@ -218,8 +195,7 @@ def forgot_password(
 
 @router.get("/restablecer-contrasena/{token}", name="auth.reset_password")
 def reset_password_form(request: Request, token: str, db: Session = Depends(get_db)):
-    auth_token = AuthToken.find(db, token, AuthToken.PURPOSE_RESET)
-    if auth_token is None or not auth_token.is_valid:
+    if accounts.find_valid_token(db, token, AuthToken.PURPOSE_RESET) is None:
         flash(request, "El enlace de recuperación no es válido o ya venció.", "error")
         return redirect(request, "auth.forgot_password")
 
@@ -235,9 +211,8 @@ def reset_password(
     csrf_token: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    auth_token = AuthToken.find(db, token, AuthToken.PURPOSE_RESET)
-
-    if auth_token is None or not auth_token.is_valid:
+    auth_token = accounts.find_valid_token(db, token, AuthToken.PURPOSE_RESET)
+    if auth_token is None:
         flash(request, "El enlace de recuperación no es válido o ya venció.", "error")
         return redirect(request, "auth.forgot_password")
 
@@ -245,20 +220,12 @@ def reset_password(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return redirect(request, "auth.reset_password", token=token)
 
-    errors = []
-    if len(password) < 8:
-        errors.append("La contraseña debe tener al menos 8 caracteres.")
-    if password != password_confirm:
-        errors.append("Las contraseñas no coinciden.")
-
+    errors = accounts.reset_password(db, auth_token, password, password_confirm)
     if errors:
         for error in errors:
             flash(request, error, "error")
         return render(request, "reset_password.html", {"token": token}, status_code=400)
 
-    auth_token.user.set_password(password)
-    auth_token.mark_used()
-    db.commit()
     flash(
         request,
         "Tu contraseña se actualizó correctamente. Ya puedes iniciar sesión.",

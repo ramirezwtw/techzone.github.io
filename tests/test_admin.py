@@ -3,7 +3,7 @@
 from decimal import Decimal
 
 from conftest import ADMIN_EMAIL
-from techzone.database import SessionLocal
+from techzone.core.database import SessionLocal
 from helpers import (
     BUILD_FORM,
     PRODUCT_FORM,

@@ -1,7 +1,7 @@
 """Perfil del usuario y formulario 'Ayúdame a armar mi PC'."""
 
 from conftest import ADMIN_EMAIL, ADMIN_PASSWORD, USER_EMAIL, USER_PASSWORD
-from techzone.database import SessionLocal
+from techzone.core.database import SessionLocal
 from helpers import ARMAR_PC_FORM, create_build_request, flashes, login, post_form
 from techzone.models import BuildRequest, User
 

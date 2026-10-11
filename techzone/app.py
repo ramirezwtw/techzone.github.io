@@ -12,9 +12,9 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
-from techzone.database import ON_VERCEL
+from techzone.core.database import ON_VERCEL
 from techzone.routers import admin, auth, builds, community, main, profile
-from techzone.security import RedirectException
+from techzone.core.security import RedirectException
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 

@@ -1,7 +1,7 @@
 """Registro, login, sesión, CSRF, verificación de correo y recuperación."""
 
 from conftest import ADMIN_EMAIL, ADMIN_PASSWORD, USER_EMAIL, USER_PASSWORD
-from techzone.database import SessionLocal
+from techzone.core.database import SessionLocal
 from helpers import create_user, csrf_token, flashes, login, post_form
 from techzone.models import AuthToken, User
 

@@ -1,22 +1,20 @@
+"""Foro de la comunidad. Capa HTTP: valida CSRF, delega y redirige."""
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 
-from techzone.database import get_db
-from techzone.models import BuildRequest, Comment, Post, PostLike, User
-from techzone.security import require_login, validate_csrf
-from techzone.templating import flash, redirect, render
+from techzone.core.database import get_db
+from techzone.core.security import require_login, validate_csrf
+from techzone.core.templating import flash, redirect, render
+from techzone.models import Post
+from techzone.services import community, stats
 
 router = APIRouter(prefix="/comunidad", default_response_class=HTMLResponse)
 
 
-def _count(db: Session, model) -> int:
-    return db.scalar(select(func.count()).select_from(model)) or 0
-
-
 def _get_post_or_404(db: Session, post_id: int) -> Post:
-    post = db.get(Post, post_id)
+    post = community.get_post(db, post_id)
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada."
@@ -26,22 +24,11 @@ def _get_post_or_404(db: Session, post_id: int) -> Post:
 
 @router.get("/", name="community.index")
 def index(request: Request, db: Session = Depends(get_db)):
-    posts = db.scalars(
-        select(Post)
-        .options(
-            selectinload(Post.user),
-            selectinload(Post.comments),
-            selectinload(Post.likes),
-        )
-        .order_by(Post.created_at.desc())
-    ).all()
-    stats = dict(
-        users=_count(db, User),
-        posts=_count(db, Post),
-        comments=_count(db, Comment),
-        requests=_count(db, BuildRequest),
+    return render(
+        request,
+        "community/index.html",
+        {"posts": community.list_posts(db), "stats": stats.community_page(db)},
     )
-    return render(request, "community/index.html", {"posts": posts, "stats": stats})
 
 
 @router.get("/nueva", name="community.nueva")
@@ -62,28 +49,17 @@ def nueva(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return redirect(request, "community.nueva")
 
-    title = title.strip()
-    content = content.strip()
-
-    errors = []
-    if len(title) < 5:
-        errors.append("El título debe tener al menos 5 caracteres.")
-    if len(content) < 20:
-        errors.append("Cuéntanos un poco más (mínimo 20 caracteres).")
-
+    post, errors = community.create_post(db, user_id, title, content)
     if errors:
         for error in errors:
             flash(request, error, "error")
         return render(
             request,
             "community/post_form.html",
-            {"title": title, "content": content},
+            {"title": title.strip(), "content": content.strip()},
             status_code=400,
         )
 
-    post = Post(user_id=user_id, title=title, content=content)
-    db.add(post)
-    db.commit()
     flash(request, "Tu publicación ya está en la comunidad.", "success")
     return redirect(request, "community.detalle", post_id=post.id)
 
@@ -91,27 +67,16 @@ def nueva(
 @router.get("/{post_id}", name="community.detalle")
 def detalle(request: Request, post_id: int, db: Session = Depends(get_db)):
     post = _get_post_or_404(db, post_id)
-    post.views += 1
-    db.commit()
-
-    comments = post.comments  # la relación ya viene ordenada por created_at
-
-    liked = False
-    user_id = request.session.get("user_id")
-    if user_id:
-        liked = (
-            db.scalars(
-                select(PostLike).where(
-                    PostLike.post_id == post.id, PostLike.user_id == user_id
-                )
-            ).first()
-            is not None
-        )
+    community.register_view(db, post)
 
     return render(
         request,
         "community/post_detail.html",
-        {"post": post, "comments": comments, "liked": liked},
+        {
+            "post": post,
+            "comments": post.comments,  # la relación ya viene ordenada por fecha
+            "liked": community.has_liked(db, post, request.session.get("user_id")),
+        },
     )
 
 
@@ -130,14 +95,13 @@ def comentar(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return redirect(request, "community.detalle", post_id=post_id)
 
-    content = content.strip()
-    if len(content) < 2:
-        flash(request, "Escribe un comentario antes de enviarlo.", "error")
-        return redirect(request, "community.detalle", post_id=post_id)
+    _, errors = community.add_comment(db, post, user_id, content)
+    if errors:
+        for error in errors:
+            flash(request, error, "error")
+    else:
+        flash(request, "Comentario publicado.", "success")
 
-    db.add(Comment(post_id=post.id, user_id=user_id, content=content))
-    db.commit()
-    flash(request, "Comentario publicado.", "success")
     return redirect(request, "community.detalle", post_id=post_id)
 
 
@@ -155,12 +119,5 @@ def like(
         flash(request, "Tu sesión expiró, intenta de nuevo.", "error")
         return redirect(request, "community.detalle", post_id=post_id)
 
-    existing = db.scalars(
-        select(PostLike).where(PostLike.post_id == post.id, PostLike.user_id == user_id)
-    ).first()
-    if existing:
-        db.delete(existing)
-    else:
-        db.add(PostLike(post_id=post.id, user_id=user_id))
-    db.commit()
+    community.toggle_like(db, post, user_id)
     return redirect(request, "community.detalle", post_id=post_id)

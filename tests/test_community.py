@@ -1,7 +1,7 @@
 """Foro de la comunidad: publicaciones, comentarios, likes y vistas."""
 
 from conftest import USER_EMAIL
-from techzone.database import SessionLocal
+from techzone.core.database import SessionLocal
 from helpers import create_post, create_user, flashes, post_form
 from techzone.models import Comment, Post, PostLike, User
 
