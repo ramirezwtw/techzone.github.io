@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from models import Build, Product, User
+from techzone.models import Build, Product, User
 
 
 def _is_empty(db: Session, model) -> bool:

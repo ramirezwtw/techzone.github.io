@@ -10,8 +10,8 @@ El esquema en producción se gestiona con Alembic:  alembic upgrade head
 import argparse
 import os
 
-from database import Base, DATABASE_URL, SessionLocal, engine
-from seed_data import seed_admin_if_missing, seed_builds_if_empty, seed_products_if_empty
+from techzone.database import Base, DATABASE_URL, SessionLocal, engine
+from techzone.seed_data import seed_admin_if_missing, seed_builds_if_empty, seed_products_if_empty
 
 
 def main() -> None:

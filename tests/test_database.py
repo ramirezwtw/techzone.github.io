@@ -7,7 +7,7 @@ Vercel Postgres...) y cuándo cae al SQLite local.
 import pytest
 from sqlalchemy.pool import NullPool
 
-import database
+from techzone import database
 
 NEON_URL = (
     "postgresql://usuario:clave@ep-cool-name-123456-pooler.us-east-2.aws.neon.tech/techzone"

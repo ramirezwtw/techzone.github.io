@@ -1,9 +1,9 @@
 """Foro de la comunidad: publicaciones, comentarios, likes y vistas."""
 
 from conftest import USER_EMAIL
-from database import SessionLocal
+from techzone.database import SessionLocal
 from helpers import create_post, create_user, flashes, post_form
-from models import Comment, Post, PostLike, User
+from techzone.models import Comment, Post, PostLike, User
 
 NUEVO_POST = {
     "title": "¿Vale la pena una RTX 4070?",

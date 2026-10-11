@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import Build
-from templating import render
+from techzone.database import get_db
+from techzone.models import Build
+from techzone.templating import render
 
 router = APIRouter(prefix="/builds", default_response_class=HTMLResponse)
 

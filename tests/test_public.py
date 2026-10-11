@@ -1,7 +1,7 @@
 """Páginas públicas: home, legales, builds y archivos estáticos."""
 
-from database import SessionLocal
-from models import Build, Product
+from techzone.database import SessionLocal
+from techzone.models import Build, Product
 
 
 def test_home_ok(client):

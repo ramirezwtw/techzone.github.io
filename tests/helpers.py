@@ -3,8 +3,8 @@
 import re
 
 from conftest import USER_EMAIL, USER_NAME, USER_PASSWORD
-from database import SessionLocal
-from models import BuildRequest, Post, User
+from techzone.database import SessionLocal
+from techzone.models import BuildRequest, Post, User
 
 CSRF_RE = re.compile(r'name="csrf_token" value="([^"]+)"')
 FLASH_RE = re.compile(r'flash-msg flash-\w+">([^<]*)<')

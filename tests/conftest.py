@@ -21,10 +21,10 @@ os.environ.pop("VERCEL", None)
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
-from app import app  # noqa: E402
-from database import Base, SessionLocal, engine  # noqa: E402
-from models import User  # noqa: E402
-from seed_data import (  # noqa: E402
+from techzone.app import app  # noqa: E402
+from techzone.database import Base, SessionLocal, engine  # noqa: E402
+from techzone.models import User  # noqa: E402
+from techzone.seed_data import (  # noqa: E402
     seed_admin_if_missing,
     seed_builds_if_empty,
     seed_products_if_empty,

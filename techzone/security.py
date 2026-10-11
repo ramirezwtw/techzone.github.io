@@ -12,9 +12,9 @@ from typing import Optional
 from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import User
-from templating import CSRF_KEY, flash, url_for
+from techzone.database import get_db
+from techzone.models import User
+from techzone.templating import CSRF_KEY, flash, url_for
 
 
 class RedirectException(Exception):

@@ -25,7 +25,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import Base
+from techzone.database import Base
 
 
 def utcnow():

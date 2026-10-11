@@ -3,7 +3,7 @@
 from decimal import Decimal
 
 from conftest import ADMIN_EMAIL
-from database import SessionLocal
+from techzone.database import SessionLocal
 from helpers import (
     BUILD_FORM,
     PRODUCT_FORM,
@@ -13,7 +13,7 @@ from helpers import (
     post_form,
     stats,
 )
-from models import Build, BuildRequest, Product, User
+from techzone.models import Build, BuildRequest, Product, User
 
 
 def test_todas_las_secciones_cargan(admin_client):

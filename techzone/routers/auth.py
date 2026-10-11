@@ -6,11 +6,11 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database import get_db
-from mailer import send_password_reset_email, send_verification_email
-from models import AuthToken, User
-from security import login_session, validate_csrf
-from templating import (
+from techzone.database import get_db
+from techzone.mailer import send_password_reset_email, send_verification_email
+from techzone.models import AuthToken, User
+from techzone.security import login_session, validate_csrf
+from techzone.templating import (
     back_or,
     external_url_for,
     flash,

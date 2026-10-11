@@ -3,10 +3,10 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import BuildRequest, User
-from security import require_login, validate_csrf
-from templating import flash, redirect, render
+from techzone.database import get_db
+from techzone.models import BuildRequest, User
+from techzone.security import require_login, validate_csrf
+from techzone.templating import flash, redirect, render
 
 router = APIRouter(prefix="/perfil", default_response_class=HTMLResponse)
 

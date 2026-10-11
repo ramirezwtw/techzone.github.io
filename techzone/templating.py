@@ -20,7 +20,9 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from jinja2 import pass_context
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# La raíz del proyecto, un nivel arriba del paquete: ahí viven templates/,
+# static/ y el database.db de desarrollo.
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 FLASHES_KEY = "_flashes"
 CSRF_KEY = "csrf_token"

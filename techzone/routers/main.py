@@ -3,9 +3,9 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from database import get_db
-from models import Build, Comment, Post, Product, User
-from templating import render
+from techzone.database import get_db
+from techzone.models import Build, Comment, Post, Product, User
+from techzone.templating import render
 
 router = APIRouter(default_response_class=HTMLResponse)
 

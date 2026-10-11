@@ -16,7 +16,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy.pool import NullPool
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# La raíz del proyecto, un nivel arriba del paquete: ahí viven templates/,
+# static/ y el database.db de desarrollo.
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Vercel inyecta esta variable de entorno automáticamente en toda Serverless
 # Function (build, preview y producción). Nos sirve para detectar "estamos

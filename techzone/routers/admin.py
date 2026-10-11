@@ -6,10 +6,10 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from database import get_db
-from models import Build, BuildRequest, Product, User, utcnow
-from security import require_admin, validate_csrf
-from templating import flash, redirect, render
+from techzone.database import get_db
+from techzone.models import Build, BuildRequest, Product, User, utcnow
+from techzone.security import require_admin, validate_csrf
+from techzone.templating import flash, redirect, render
 
 # El control de acceso se aplica a todo el router: equivale al @admin_required
 # que llevaba cada vista en la versión Flask.

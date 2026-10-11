@@ -1,9 +1,9 @@
 """Perfil del usuario y formulario 'Ayúdame a armar mi PC'."""
 
 from conftest import ADMIN_EMAIL, ADMIN_PASSWORD, USER_EMAIL, USER_PASSWORD
-from database import SessionLocal
+from techzone.database import SessionLocal
 from helpers import ARMAR_PC_FORM, create_build_request, flashes, login, post_form
-from models import BuildRequest, User
+from techzone.models import BuildRequest, User
 
 
 def test_perfil_carga(user_client):
