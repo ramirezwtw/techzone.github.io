@@ -1,0 +1,25 @@
+---
+// Páginas legales: el texto vive en el backend (services/pages.py).
+import Minimal from "../../layouts/Minimal.astro";
+import { api, loadSession, notFound } from "../../lib/api";
+
+const { slug } = Astro.params;
+const session = await loadSession(Astro);
+const page = await api.legal(slug ?? "", Astro.request);
+
+if (!page) {
+  return notFound();
+}
+---
+
+<Minimal title={`${page.title} — TechZone`} session={session}>
+  <a slot="nav" href="/" class="btn-secondary btn-sm">← Volver al inicio</a>
+
+  <div class="section-label">Legal</div>
+  <h1 class="profile-title">{page.title}</h1>
+  <div class="profile-info-card">
+    {page.body.map((paragraph) => (
+      <p style="margin-bottom:16px;color:var(--text-secondary);line-height:1.7;">{paragraph}</p>
+    ))}
+  </div>
+</Minimal>

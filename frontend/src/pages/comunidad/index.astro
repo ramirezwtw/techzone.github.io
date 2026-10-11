@@ -1,0 +1,63 @@
+---
+// Listado del foro. Publicar sigue siendo del backend (sesión + CSRF).
+import Minimal from "../../layouts/Minimal.astro";
+import { api, initials, loadSession, longDate } from "../../lib/api";
+
+const session = await loadSession(Astro);
+const [posts, stats] = await Promise.all([
+  api.posts(Astro.request),
+  api.communityStats(Astro.request),
+]);
+
+const publicar = session.authenticated
+  ? { href: "/comunidad/nueva", label: "+ Nueva publicación" }
+  : { href: "/login?next=%2Fcomunidad%2Fnueva", label: "Iniciar sesión para publicar" };
+---
+
+<Minimal title="Comunidad — TechZone" session={session}>
+  <a slot="nav" href="/" class="btn-secondary btn-sm">← Inicio</a>
+  <a slot="nav" href={publicar.href} class="btn-primary btn-sm">{publicar.label}</a>
+
+  <div class="section-label">Comunidad</div>
+  <h1 class="profile-title">Comunidad TechZone</h1>
+
+  <div class="comunidad-stats" style="margin-bottom:40px;">
+    <div class="com-stat-card">
+      <div class="com-stat-num">{stats.users}</div>
+      <div class="com-stat-label">Usuarios registrados</div>
+    </div>
+    <div class="com-stat-card">
+      <div class="com-stat-num">{stats.posts}</div>
+      <div class="com-stat-label">Publicaciones</div>
+    </div>
+    <div class="com-stat-card">
+      <div class="com-stat-num">{stats.comments}</div>
+      <div class="com-stat-label">Comentarios</div>
+    </div>
+    <div class="com-stat-card">
+      <div class="com-stat-num">{stats.requests}</div>
+      <div class="com-stat-label">Solicitudes de asesoría</div>
+    </div>
+  </div>
+
+  {posts.length > 0 ? (
+    <div class="post-list">
+      {posts.map((post) => (
+        <a href={`/comunidad/${post.id}`} class="com-card post-list-item">
+          <div class="com-card-header">
+            <div class="com-avatar"><span>{initials(post.author)}</span></div>
+            <div><div class="com-name">{post.author}</div><div class="com-time">{longDate(post.created_at)}</div></div>
+          </div>
+          <h4 class="com-card-title">{post.title}</h4>
+          <p class="com-card-preview">{post.excerpt}</p>
+          <div class="com-card-meta"><span>💬 {post.comment_count} respuestas</span><span>👁 {post.views} vistas</span><span>❤️ {post.like_count} likes</span></div>
+        </a>
+      ))}
+    </div>
+  ) : (
+    <div class="profile-empty">
+      <p>Todavía no hay publicaciones. Sé el primero en compartir tu build o preguntar algo a la comunidad.</p>
+      <a href={publicar.href} class="btn-primary">{publicar.label}</a>
+    </div>
+  )}
+</Minimal>

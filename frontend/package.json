@@ -1,0 +1,17 @@
+{
+  "name": "techzone-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Frontend Astro del sitio publico de TechZone. Consume la API FastAPI.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "node ./dist/server/entry.mjs",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/node": "8.3.4",
+    "astro": "4.16.18"
+  }
+}

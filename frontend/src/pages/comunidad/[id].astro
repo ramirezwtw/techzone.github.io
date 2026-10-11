@@ -1,0 +1,70 @@
+---
+// Detalle de una publicación. Comentar y dar like siguen siendo POST al
+// backend, así que la página pide el token CSRF de la sesión.
+import Minimal from "../../layouts/Minimal.astro";
+import { api, initials, loadCsrf, loadSession, longDate, notFound } from "../../lib/api";
+
+const { id } = Astro.params;
+const session = await loadSession(Astro);
+const post = /^\d+$/.test(id ?? "") ? await api.post(id!, Astro.request) : null;
+
+if (!post) {
+  return notFound("Publicación no encontrada.");
+}
+
+// Solo hace falta para quien puede comentar o dar like.
+const csrfToken = session.authenticated ? await loadCsrf(Astro) : null;
+const loginParaComentar = `/login?next=${encodeURIComponent(`/comunidad/${post.id}`)}`;
+---
+
+<Minimal title={`${post.title} — Comunidad TechZone`} session={session}>
+  <a slot="nav" href="/comunidad/" class="btn-secondary btn-sm">← Comunidad</a>
+
+  <div class="com-card" style="margin-bottom:32px;">
+    <div class="com-card-header">
+      <div class="com-avatar"><span>{initials(post.author)}</span></div>
+      <div><div class="com-name">{post.author}</div><div class="com-time">{longDate(post.created_at)}</div></div>
+    </div>
+    <h1 class="com-card-title" style="font-size:22px;">{post.title}</h1>
+    <p class="com-card-preview" style="-webkit-line-clamp:unset;white-space:pre-line;">{post.content}</p>
+    <div class="com-card-meta">
+      <span>👁 {post.views} vistas</span>
+      <span>💬 {post.comments.length} respuestas</span>
+      {session.authenticated && csrfToken ? (
+        <form method="post" action={`/comunidad/${post.id}/like`} style="display:inline-flex;">
+          <input type="hidden" name="csrf_token" value={csrfToken} />
+          <button type="submit" class={`like-btn ${post.liked ? "like-btn-active" : ""}`}>❤️ {post.like_count}</button>
+        </form>
+      ) : (
+        <span>❤️ {post.like_count}</span>
+      )}
+    </div>
+  </div>
+
+  <h2 class="profile-section-title">Respuestas</h2>
+
+  {post.comments.length > 0 ? (
+    post.comments.map((comment) => (
+      <div class="profile-info-card" style="margin-bottom:12px;">
+        <div class="com-card-header" style="margin-bottom:8px;">
+          <div class="com-avatar"><span>{initials(comment.author)}</span></div>
+          <div><div class="com-name">{comment.author}</div><div class="com-time">{longDate(comment.created_at)}</div></div>
+        </div>
+        <p style="color:var(--text-secondary);font-size:14px;line-height:1.6;">{comment.content}</p>
+      </div>
+    ))
+  ) : (
+    <p class="form-hint" style="margin-bottom:20px;">Todavía no hay respuestas. ¡Sé el primero en comentar!</p>
+  )}
+
+  {session.authenticated && csrfToken ? (
+    <form method="post" action={`/comunidad/${post.id}/comentar`} class="form-group" style="margin-top:24px;">
+      <input type="hidden" name="csrf_token" value={csrfToken} />
+      <label class="form-label" for="content">Escribe una respuesta</label>
+      <textarea class="form-input" id="content" name="content" rows="3" required minlength="2"></textarea>
+      <button type="submit" class="btn-primary" style="margin-top:12px;">Comentar</button>
+    </form>
+  ) : (
+    <p class="form-hint"><a href={loginParaComentar}>Inicia sesión</a> para comentar.</p>
+  )}
+</Minimal>

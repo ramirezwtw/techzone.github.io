@@ -1,0 +1,56 @@
+---
+// Plantilla común del sitio público. En la versión Jinja cada página repetía
+// su propio <head>, nav y footer; aquí viven una sola vez.
+import Chatbot from "../components/Chatbot.astro";
+import Flash from "../components/Flash.astro";
+import Footer from "../components/Footer.astro";
+import Nav from "../components/Nav.astro";
+import SiteScripts from "../components/SiteScripts.astro";
+import type { SessionInfo } from "../lib/api";
+
+interface Props {
+  title?: string;
+  description?: string;
+  session: SessionInfo;
+}
+
+const {
+  title = "TechZone — Encuentra la PC perfecta para ti",
+  description = "TechZone analiza tus necesidades, presupuesto y preferencias para recomendarte configuraciones de PC compatibles y optimizadas. Asesoría inteligente de hardware.",
+  session,
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="keywords" content="TechZone, configuración PC, asesoría hardware, componentes compatibles, recomendaciones hardware, computadora gaming" />
+  <meta property="og:title" content="TechZone — Encuentra la PC perfecta para ti" />
+  <meta property="og:description" content="Plataforma inteligente de asesoramiento de hardware. Recomendaciones compatibles según tu presupuesto y necesidades." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="img/logo-techzone.png" />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <Flash flashes={session.flashes} />
+
+  <Nav session={session} />
+
+  <slot />
+
+  <Footer />
+
+  <Chatbot />
+
+  <SiteScripts />
+
+</body>
+</html>

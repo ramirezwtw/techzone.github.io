@@ -1,0 +1,226 @@
+---
+// El JavaScript del sitio, tal cual venía en la plantilla. `is:inline` evita
+// que Astro lo empaquete como módulo: así conserva exactamente su semántica.
+---
+
+<script is:inline>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    const navToggle = document.getElementById('navToggle');
+    const navLinks  = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', isOpen);
+      navToggle.classList.toggle('active', isOpen);
+    });
+    navLinks.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        navToggle.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', false);
+      });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', e => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 4) * 0.07}s`;
+      observer.observe(el);
+    });
+
+    // ─── BUSCADOR Y FILTROS DEL CATÁLOGO ─────────────────
+    const hwSearch = document.getElementById('hwSearch');
+    const hwBrandFilter = document.getElementById('hwBrandFilter');
+    const hwSort = document.getElementById('hwSort');
+    const hwGrid = document.getElementById('hardwareGrid');
+    const hwNoResults = document.getElementById('hwNoResults');
+
+    if (hwGrid) {
+      const hwCards = Array.from(hwGrid.querySelectorAll('.hw-card'));
+
+      function applyHwFilters() {
+        const query = (hwSearch.value || '').trim().toLowerCase();
+        const brand = hwBrandFilter.value;
+        let visibleCount = 0;
+
+        hwCards.forEach(card => {
+          const matchesQuery = !query || card.dataset.name.includes(query);
+          const matchesBrand = !brand || card.dataset.brand === brand;
+          const visible = matchesQuery && matchesBrand;
+          card.style.display = visible ? '' : 'none';
+          if (visible) visibleCount++;
+        });
+
+        hwNoResults.style.display = visibleCount === 0 ? '' : 'none';
+      }
+
+      function applyHwSort() {
+        const mode = hwSort.value;
+        if (mode === 'default') return;
+        const sorted = [...hwCards].sort((a, b) => {
+          if (mode === 'price-asc') return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+          if (mode === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+          if (mode === 'name-asc') return a.dataset.name.localeCompare(b.dataset.name);
+          return 0;
+        });
+        sorted.forEach(card => hwGrid.appendChild(card));
+      }
+
+      hwSearch.addEventListener('input', applyHwFilters);
+      hwBrandFilter.addEventListener('change', applyHwFilters);
+      hwSort.addEventListener('change', applyHwSort);
+    }
+
+    // ─── CHATBOT ─────────────────────────────────────────
+    const chatbotToggle  = document.getElementById('chatbotToggle');
+    const chatbotWrapper = document.getElementById('chatbotWrapper');
+    const chatbotClose   = document.getElementById('chatbotClose');
+    const chatbotPanel   = document.getElementById('chatbotPanel');
+    const chatbotInput   = document.getElementById('chatbotInput');
+    const chatbotSend    = document.getElementById('chatbotSend');
+    const chatMessages   = document.getElementById('chatbotMessages');
+
+    const cbResponses = {
+      gamer: {
+        text: '🎮 Para una <strong>PC Gamer</strong>, analizamos tu resolución objetivo y presupuesto. ¿En qué rango de precio estás pensando?',
+        opts: ['$500–$800 USD', '$800–$1,500 USD', '$1,500+ USD']
+      },
+      oficina: {
+        text: '💼 Para <strong>trabajo de oficina</strong>, optimizamos eficiencia y economía. Ideal para Office, videollamadas y tareas diarias. ¿Qué necesitas principalmente?',
+        opts: ['Solo quiero la torre', 'Setup completo', 'Laptop para llevar']
+      },
+      programacion: {
+        text: '💻 Excelente. Para <strong>programación</strong>, priorizamos RAM (32GB+), CPU multinúcleo y SSD NVMe rápido. ¿Qué tipo de desarrollo haces?',
+        opts: ['Web / Frontend', 'Backend / DevOps', 'IA / Data Science', 'Apps móviles']
+      },
+      diseno: {
+        text: '🎨 Para <strong>diseño y edición</strong>, necesitas GPU con buen rendimiento en render. ¿Qué software usas principalmente?',
+        opts: ['Adobe Photoshop / Illustrator', 'Premiere / After Effects', 'Blender / 3D', 'CAD / Arquitectura']
+      },
+      presupuesto_bajo: {
+        text: '💰 Con <strong>$500–$800 USD</strong> recomendamos builds con Ryzen 5 + RTX 3060 que dan excelentes FPS en 1080p. ¡Muy buena relación calidad/precio!',
+        opts: ['Ver builds disponibles', 'Ajustar presupuesto', 'Registrarme gratis']
+      },
+      presupuesto_medio: {
+        text: '🔥 Rango ideal. Con <strong>$800–$1,500 USD</strong> accedes a builds 1440p de alto rendimiento con Ryzen 7 o Intel i7. ¡La opción más popular!',
+        opts: ['Ver builds disponibles', 'Comparar opciones', 'Registrarme gratis']
+      },
+      presupuesto_alto: {
+        text: '🚀 Con <strong>$1,500+ USD</strong> tienes builds con RTX 4080/4090 para 4K gaming, streaming profesional y trabajo sin límites.',
+        opts: ['Ver builds Pro', 'Ver workstations', 'Registrarme gratis']
+      },
+      default: {
+        text: '¡Gracias por tu mensaje! Puedo ayudarte a encontrar la PC perfecta. ¿Cuál es tu principal caso de uso?',
+        opts: ['🎮 PC Gamer', '💼 PC Oficina', '💻 Programación', '🎨 Diseño']
+      }
+    };
+
+    function addMsg(html, type = 'bot') {
+      const wrap = document.createElement('div');
+      wrap.className = `chat-msg chat-${type}`;
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.innerHTML = html;
+      wrap.appendChild(bubble);
+      chatMessages.appendChild(wrap);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+      const el = document.createElement('div');
+      el.className = 'chat-msg chat-bot';
+      el.id = 'cbTyping';
+      el.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+      chatMessages.appendChild(el);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addOpts(opts) {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-quick-options';
+      opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'chat-option';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => { wrap.remove(); dispatch(opt, true); });
+        wrap.appendChild(btn);
+      });
+      chatMessages.appendChild(wrap);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function respond(key) {
+      showTyping();
+      setTimeout(() => {
+        document.getElementById('cbTyping')?.remove();
+        const r = cbResponses[key] || cbResponses.default;
+        addMsg(r.text);
+        setTimeout(() => addOpts(r.opts), 250);
+      }, 900);
+    }
+
+    function dispatch(text, fromBtn = false) {
+      if (!fromBtn) addMsg(text, 'user');
+      const lc = text.toLowerCase();
+      if (lc.includes('gamer') || lc.includes('gaming') || lc === '🎮 pc gamer') respond('gamer');
+      else if (lc.includes('oficina') || lc.includes('trabajo') || lc === '💼 pc oficina') respond('oficina');
+      else if (lc.includes('program') || lc.includes('develop') || lc.includes('backend') || lc.includes('frontend') || lc.includes('web') || lc.includes('ia') || lc.includes('apps')) respond('programacion');
+      else if (lc.includes('dise') || lc.includes('adobe') || lc.includes('blender') || lc.includes('cad') || lc === '🎨 diseño') respond('diseno');
+      else if (lc.includes('500') || lc.includes('800') || lc.includes('bajo')) respond('presupuesto_bajo');
+      else if (lc.includes('1,5') || lc.includes('1500') || lc.includes('medio')) respond('presupuesto_medio');
+      else if (lc.includes('pro') || lc.includes('alto') || lc.includes('3,000') || lc.includes('workstation')) respond('presupuesto_alto');
+      else if (lc.includes('registr') || lc.includes('gratis') || lc.includes('ver build') || lc.includes('comparar')) {
+        showTyping();
+        setTimeout(() => {
+          document.getElementById('cbTyping')?.remove();
+          addMsg('¡Perfecto! Crea tu cuenta gratis y accede a todas las recomendaciones personalizadas. <a href="#registro" style="color:var(--accent);font-weight:600">Crear cuenta →</a>');
+        }, 700);
+      } else respond('default');
+    }
+
+    chatbotToggle.addEventListener('click', () => {
+      const open = chatbotWrapper.classList.toggle('open');
+      chatbotToggle.setAttribute('aria-expanded', open);
+      chatbotPanel.setAttribute('aria-hidden', !open);
+    });
+
+    chatbotClose.addEventListener('click', () => {
+      chatbotWrapper.classList.remove('open');
+      chatbotToggle.setAttribute('aria-expanded', false);
+      chatbotPanel.setAttribute('aria-hidden', true);
+    });
+
+    chatbotSend.addEventListener('click', sendMsg);
+    chatbotInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+
+    function sendMsg() {
+      const text = chatbotInput.value.trim();
+      if (!text) return;
+      document.getElementById('chatQuickOptions')?.remove();
+      addMsg(text, 'user');
+      chatbotInput.value = '';
+      dispatch(text);
+    }
+
+    document.querySelectorAll('.chat-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('chatQuickOptions')?.remove();
+        addMsg(btn.textContent, 'user');
+        dispatch(btn.dataset.query || btn.textContent);
+      });
+    });
+  </script>

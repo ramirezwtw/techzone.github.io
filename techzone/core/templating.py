@@ -111,12 +111,21 @@ def flash(request: Request, message: str, category: str = "success") -> None:
     request.session.setdefault(FLASHES_KEY, []).append([category, message])
 
 
-@pass_context
-def _jinja_get_flashed_messages(context, with_categories: bool = False, category_filter=()):
-    request = context["request"]
+def pop_flashes(request: Request, category_filter=()) -> list:
+    """Saca los mensajes de la sesión: se muestran una sola vez.
+
+    Lo usan la plantilla Jinja y también /api/v1/me, para que el frontend
+    Astro pueda mostrar los mensajes de un redirect del backend.
+    """
     messages = request.session.pop(FLASHES_KEY, [])
     if category_filter:
         messages = [m for m in messages if m[0] in category_filter]
+    return messages
+
+
+@pass_context
+def _jinja_get_flashed_messages(context, with_categories: bool = False, category_filter=()):
+    messages = pop_flashes(context["request"], category_filter)
     if with_categories:
         return [(category, message) for category, message in messages]
     return [message for _, message in messages]

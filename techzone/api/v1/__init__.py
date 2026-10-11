@@ -2,9 +2,10 @@
 
 from fastapi import APIRouter
 
-from techzone.api.v1 import catalog, community, pages
+from techzone.api.v1 import catalog, community, pages, session
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(pages.router)
+router.include_router(session.router)
 router.include_router(catalog.router)
 router.include_router(community.router)

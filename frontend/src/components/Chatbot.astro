@@ -1,0 +1,47 @@
+---
+// Widget flotante del asistente. La lógica está en SiteScripts.astro.
+---
+
+<!-- ════════════════════════════════════════════════
+       CHATBOT FLOTANTE — T-10
+  ═════════════════════════════════════════════════ -->
+  <div class="chatbot-wrapper" id="chatbotWrapper" role="complementary" aria-label="Asistente virtual TechZone">
+    <div class="chatbot-panel" id="chatbotPanel" aria-hidden="true" role="dialog" aria-labelledby="chatbot-heading">
+      <div class="chatbot-header">
+        <div class="chatbot-header-info">
+          <div class="chatbot-avatar" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H17l-4.5 3.3 1.7 5.3L10 13l-5.2 3 1.7-5.3L2 7.4h5.2L10 2z" fill="#A855F7"/></svg>
+          </div>
+          <div>
+            <div class="chatbot-name" id="chatbot-heading">TechZone AI</div>
+            <div class="chatbot-status"><span class="status-dot" aria-hidden="true"></span>En línea</div>
+          </div>
+        </div>
+        <button class="chatbot-close" id="chatbotClose" aria-label="Cerrar chat">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages" aria-live="polite">
+        <div class="chat-msg chat-bot">
+          <div class="chat-bubble"><p>¡Hola! Soy el asistente virtual de <strong>TechZone</strong>. ¿Qué tipo de PC estás buscando? 🎮</p></div>
+        </div>
+        <div class="chat-quick-options" id="chatQuickOptions" role="group" aria-label="Opciones rápidas">
+          <button class="chat-option" data-query="gamer">🎮 PC Gamer</button>
+          <button class="chat-option" data-query="oficina">💼 PC Oficina</button>
+          <button class="chat-option" data-query="programacion">💻 Programación</button>
+          <button class="chat-option" data-query="diseno">🎨 Diseño</button>
+        </div>
+      </div>
+      <div class="chatbot-input-wrap">
+        <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Escribe tu pregunta..." aria-label="Escribe tu mensaje" maxlength="200"/>
+        <button class="chatbot-send" id="chatbotSend" aria-label="Enviar mensaje">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 8H2M10 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="chatbot-toggle" id="chatbotToggle" aria-label="Abrir asistente virtual" aria-expanded="false">
+      <svg class="chatbot-icon-chat" width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M20 13.5c0 1.2-.8 2.5-2.5 2.5H7L2 21V5.5C2 4 3 3 4.5 3h13C19.2 3 20 4 20 5.5v8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <svg class="chatbot-icon-close" width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 4l14 14M18 4 4 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="chatbot-notif" aria-hidden="true">1</span>
+    </button>
+  </div>

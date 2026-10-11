@@ -1,6 +1,6 @@
 """API pública del foro: lectura de publicaciones y estadísticas."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from techzone.core.database import get_db
@@ -16,13 +16,14 @@ def posts(db: Session = Depends(get_db)):
 
 
 @router.get("/posts/{post_id}", response_model=PostDetailOut, summary="Publicación con comentarios")
-def post_detail(post_id: int, db: Session = Depends(get_db)):
+def post_detail(request: Request, post_id: int, db: Session = Depends(get_db)):
     post = community.get_post(db, post_id)
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada."
         )
-    return PostDetailOut.of(post)
+    liked = community.has_liked(db, post, request.session.get("user_id"))
+    return PostDetailOut.of(post, liked=liked)
 
 
 @router.get("/stats", response_model=CommunityStatsOut, summary="Cifras de la comunidad")

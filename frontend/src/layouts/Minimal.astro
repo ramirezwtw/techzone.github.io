@@ -1,0 +1,48 @@
+---
+// Plantilla de las páginas internas sencillas (legal, detalle de build,
+// comunidad): barra fija con un enlace de vuelta y sin footer, igual que las
+// plantillas Jinja equivalentes.
+import Flash from "../components/Flash.astro";
+import type { SessionInfo } from "../lib/api";
+
+interface Props {
+  title: string;
+  session: SessionInfo;
+}
+
+const { title, session } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <header class="navbar scrolled" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="/" class="nav-logo" aria-label="TechZone inicio">
+        <img src="/static/img/logo-techzone.png" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+      <div class="nav-auth">
+        <slot name="nav" />
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container container-narrow">
+      <Flash flashes={session.flashes} />
+      <slot />
+    </div>
+  </main>
+
+</body>
+</html>

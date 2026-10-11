@@ -164,3 +164,93 @@ def test_la_api_esta_documentada(client):
     assert "/api/v1/catalog/products" in rutas
     assert "/api/v1/community/posts/{post_id}" in rutas
     assert rutas["/api/v1/home"]["get"]["summary"] == "Todo lo que necesita el home"
+
+
+# ──────────────────────────────── sesión ────────────────────────────────────
+
+
+def test_me_sin_sesion(client):
+    assert client.get("/api/v1/me").json() == {
+        "authenticated": False,
+        "name": None,
+        "role": None,
+        "is_admin": False,
+        "flashes": [],
+    }
+
+
+def test_me_con_usuario(user_client):
+    cuerpo = user_client.get("/api/v1/me").json()
+    assert cuerpo["authenticated"] is True
+    assert cuerpo["name"] == "Ana Pérez"
+    assert cuerpo["role"] == "user"
+    assert cuerpo["is_admin"] is False
+
+
+def test_me_con_admin(admin_client):
+    cuerpo = admin_client.get("/api/v1/me").json()
+    assert cuerpo["is_admin"] is True
+    assert cuerpo["role"] == "admin"
+
+
+def test_el_extracto_recorta_el_contenido(client):
+    largo = "x" * 200
+    create_post(create_user(), content=largo)
+    post = client.get("/api/v1/community/posts").json()[0]
+    assert post["excerpt"] == "x" * 150 + "..."
+    assert len(post["excerpt"]) == 153
+
+
+def test_el_extracto_no_recorta_lo_corto(client):
+    create_post(create_user(), content="Corto y al grano.")
+    assert client.get("/api/v1/community/posts").json()[0]["excerpt"] == "Corto y al grano."
+
+
+def test_me_entrega_los_flashes_una_sola_vez(client):
+    """Un redirect del backend deja un mensaje; el frontend lo recoge al pintar."""
+    client.get("/perfil/", follow_redirects=False)  # deja "Debes iniciar sesión..."
+
+    flashes = client.get("/api/v1/me").json()["flashes"]
+    assert flashes == [
+        {"category": "error", "message": "Debes iniciar sesión para continuar."}
+    ]
+    # Ya consumidos: la siguiente lectura viene vacía.
+    assert client.get("/api/v1/me").json()["flashes"] == []
+
+
+def test_csrf_entrega_un_token_estable(client):
+    primero = client.get("/api/v1/csrf").json()["csrf_token"]
+    assert len(primero) == 64
+    # El token vive en la sesión: no cambia entre llamadas.
+    assert client.get("/api/v1/csrf").json()["csrf_token"] == primero
+
+
+def test_el_token_de_la_api_sirve_para_un_formulario(user_client):
+    """El token que da la API es el mismo que valida el backend en un POST."""
+    token = user_client.get("/api/v1/csrf").json()["csrf_token"]
+    response = user_client.post(
+        "/comunidad/nueva",
+        data={
+            "title": "Publicado desde el frontend",
+            "content": "Contenido suficientemente largo para pasar la validación.",
+            "csrf_token": token,
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+
+
+def test_el_detalle_dice_si_el_visitante_dio_like(user_client):
+    post_id = create_post(create_user(email="otro@example.com", name="Otro"))
+    assert user_client.get(f"/api/v1/community/posts/{post_id}").json()["liked"] is False
+
+    token = user_client.get("/api/v1/csrf").json()["csrf_token"]
+    user_client.post(
+        f"/comunidad/{post_id}/like", data={"csrf_token": token}, follow_redirects=False
+    )
+    assert user_client.get(f"/api/v1/community/posts/{post_id}").json()["liked"] is True
+
+
+def test_el_like_de_otro_no_marca_al_visitante(client):
+    post_id = create_post(create_user())
+    assert client.get(f"/api/v1/community/posts/{post_id}").json()["liked"] is False

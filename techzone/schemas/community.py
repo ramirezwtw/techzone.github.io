@@ -23,9 +23,19 @@ class CommentOut(BaseModel):
         )
 
 
+EXCERPT_LENGTH = 150
+
+
+def excerpt_of(content: str) -> str:
+    if len(content) <= EXCERPT_LENGTH:
+        return content
+    return content[:EXCERPT_LENGTH] + "..."
+
+
 class PostOut(BaseModel):
     id: int
     title: str
+    excerpt: str
     author: str
     created_at: datetime
     views: int
@@ -37,6 +47,7 @@ class PostOut(BaseModel):
         return cls(
             id=post.id,
             title=post.title,
+            excerpt=excerpt_of(post.content),
             author=post.user.name,
             created_at=post.created_at,
             views=post.views,
@@ -48,13 +59,16 @@ class PostOut(BaseModel):
 class PostDetailOut(PostOut):
     content: str
     comments: list[CommentOut]
+    # Depende de quién mira: si ya dio like, el corazón va marcado.
+    liked: bool = False
 
     @classmethod
-    def of(cls, post: Post) -> "PostDetailOut":
+    def of(cls, post: Post, liked: bool = False) -> "PostDetailOut":
         return cls(
             **PostOut.of(post).model_dump(),
             content=post.content,
             comments=[CommentOut.of(c) for c in post.comments],
+            liked=liked,
         )
 
 

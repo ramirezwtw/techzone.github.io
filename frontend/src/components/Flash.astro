@@ -1,0 +1,19 @@
+---
+// Avisos que dejó un redirect del backend (login, comentario publicado...).
+// Mismo marcado que templates/_flash.html.
+import type { FlashMessage } from "../lib/api";
+
+interface Props {
+  flashes: FlashMessage[];
+}
+
+const { flashes } = Astro.props;
+---
+
+{flashes.length > 0 && (
+  <div class="flash-container">
+    {flashes.map((flash) => (
+      <div class={`flash-msg flash-${flash.category}`}>{flash.message}</div>
+    ))}
+  </div>
+)}

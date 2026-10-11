@@ -1,0 +1,49 @@
+---
+// Barra de navegación. Los enlaces de autenticación se pintan en el servidor
+// según la sesión que devuelve /api/v1/me, así que no hay parpadeo.
+import type { SessionInfo } from "../lib/api";
+
+interface Props {
+  session: SessionInfo;
+}
+
+const { session } = Astro.props;
+---
+
+  <header class="navbar" id="navbar" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="#inicio" class="nav-logo" aria-label="TechZone inicio">
+        <img src="/static/img/logo-techzone.png" alt="TechZone — PCs Colombia" class="logo-img" />
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navLinks">
+        <span class="toggle-bar"></span>
+        <span class="toggle-bar"></span>
+        <span class="toggle-bar"></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks" role="list">
+        <li><a href="#inicio"          class="nav-link">Inicio</a></li>
+        <li><a href="#caracteristicas" class="nav-link">Características</a></li>
+        <li><a href="#gaming"          class="nav-link">Gaming</a></li>
+        <li><a href="#beneficios"      class="nav-link">Beneficios</a></li>
+        <li><a href="#comunidad"       class="nav-link">Comunidad</a></li>
+        <li><a href="#galeria"         class="nav-link">Galería</a></li>
+      </ul>
+
+      <div class="nav-auth">
+        {session.authenticated ? (
+          <>
+            {session.is_admin && <a href="/admin/" class="btn-secondary btn-sm">Panel Admin</a>}
+            <a href="/perfil/" class="btn-secondary btn-sm">Mi Perfil</a>
+            <a href="/logout" class="btn-primary btn-sm">Cerrar sesión</a>
+          </>
+        ) : (
+          <>
+            <a href="/login" class="btn-secondary btn-sm">Iniciar Sesión</a>
+            <a href="/registro" class="btn-primary btn-sm">Registrarse</a>
+          </>
+        )}
+      </div>
+    </nav>
+  </header>
